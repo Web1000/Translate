@@ -1,0 +1,1 @@
+*{box-sizing:border-box}body{margin:0;overflow:hidden;background:#181818;cursor:crosshair}canvas{display:block;width:100vw;height:100vh}#hint{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#292929;color:#dedede;border:1px solid #494949;font:13px 'Segoe UI',sans-serif;padding:10px 17px;border-radius:7px;pointer-events:none;box-shadow:0 2px 12px #0006}

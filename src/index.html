@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:"><title>Hanzi Lens — Settings</title><link rel="stylesheet" href="style.css"></head>
+<body>
+  <aside>
+    <div class="app-name"><img src="tray.png" alt="" width="24" height="24">Hanzi Lens</div>
+    <nav aria-label="Settings">
+      <button class="nav active" data-pane="lookup" aria-current="page"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2" width="15" height="19" rx="2"/><path d="M7 2v19m3-7 3-8 3 8m-5-3h4M4 18h15"/></svg></span>Lookup</button>
+      <p class="nav-group">Settings</p>
+      <button class="nav" data-pane="display"><span class="nav-icon letters">Aa</span>Display</button>
+      <button class="nav" data-pane="chinese"><span class="nav-icon">文</span>Chinese style</button>
+      <button class="nav" data-pane="shortcuts"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M5 9h1m3 0h1m3 0h1m3 0h1M5 12h1m3 0h1m3 0h1m3 0h1M7 16h10"/></svg></span>Shortcuts</button>
+      <p class="nav-group">System</p>
+      <button class="nav" data-pane="translation"><span class="nav-icon">◎</span>Translation</button>
+      <button class="nav" data-pane="about"><span class="nav-icon">ⓘ</span>About</button>
+    </nav>
+    <div class="sidebar-foot"><span class="running-dot"></span>Running in the background</div>
+  </aside>
+  <main>
+    <section id="pane-lookup" class="pane"><h1>Lookup</h1>
+      <h2><span class="section-icon">AⅠ</span>Text selection</h2>
+      <div class="group"><div class="setting-row"><div><label for="selectionEnabled">Look up selected text</label><p>Highlight Chinese in any app, then press the shortcut.<br>Definitions and pinyin appear in a small popup.</p><p class="shortcut-hint" id="selection-hint"></p></div><input class="switch" type="checkbox" id="selectionEnabled" aria-label="Enable text selection"></div></div>
+      <h2><span class="section-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3H4v5m11-5h5v5M4 16v5h5m11-5v5h-5M4 11v2m7-10h2m7 8v2m-9 8h2"/></svg></span>Capture passage</h2>
+      <div class="group"><div class="setting-row"><div><label for="captureEnabled">Read text from your screen</label><p>Drag around Chinese text in an image, video, or app.<br>The recognized text appears in the same popup.</p><p class="shortcut-hint" id="capture-hint"></p></div><input class="switch" type="checkbox" id="captureEnabled" aria-label="Enable screen capture"></div><div class="group-footer"><span>Press Esc to cancel a capture.</span><button id="start-capture">Start capture…</button></div></div>
+      <p class="footnote">Closing Settings keeps your shortcuts active. Use the tray icon to reopen Settings or quit.</p>
+    </section>
+    <section id="pane-display" class="pane" hidden><h1>Display</h1>
+      <h2>Result popup</h2><div class="group">
+        <div class="setting-row"><div><label for="toneColors">Tone colors</label><p>Color Chinese characters and pinyin by tone.</p></div><input class="switch" type="checkbox" id="toneColors" aria-label="Tone colors"></div>
+        <div class="setting-row"><div><label for="showPinyin">Show pinyin</label><p>Display pronunciation above the definitions.</p></div><input class="switch" type="checkbox" id="showPinyin" aria-label="Show pinyin"></div>
+        <div class="setting-row"><label for="fontSize">Text size</label><select id="fontSize"><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select></div>
+      </div><div class="tone-legend"><span class="tone-1">1st tone</span><span class="tone-2">2nd tone</span><span class="tone-3">3rd tone</span><span class="tone-4">4th tone</span><span>Neutral</span></div>
+      <p class="footnote">The popup stays above other windows. Drag its top edge to move it, or resize from a corner.</p>
+    </section>
+    <section id="pane-chinese" class="pane" hidden><h1>Chinese style</h1><h2>Characters in the popup</h2><div class="group"><div class="setting-row"><div><label for="chineseStyle">Preferred form</label><p>Applies to words found in the dictionary.</p></div><select id="chineseStyle"><option value="original">As selected</option><option value="simplified">Simplified · 简体</option><option value="traditional">Traditional · 繁體</option></select></div></div><p class="footnote">Both Simplified and Traditional Chinese are recognized, regardless of this setting. Unmatched text keeps its original form.</p></section>
+    <section id="pane-shortcuts" class="pane" hidden><h1>Shortcuts</h1><p class="intro">Click a shortcut, then press your preferred key combination.</p><div class="group">
+      <div class="setting-row"><label for="selectionShortcut">Text selection</label><input class="shortcut-input" id="selectionShortcut" readonly aria-describedby="shortcut-help"></div>
+      <div class="setting-row"><label for="captureShortcut">Capture passage</label><input class="shortcut-input" id="captureShortcut" readonly aria-describedby="shortcut-help"></div>
+    </div><p class="footnote" id="shortcut-help">Include Ctrl, Alt, or the Windows key. Each feature needs a different shortcut. Press Esc to cancel recording.</p><div class="actions"><button id="reset-shortcuts">Use defaults</button><button id="save-shortcuts" class="accent">Save shortcuts</button></div><p class="inline-status" id="shortcut-status" role="status"></p></section>
+    <section id="pane-translation" class="pane" hidden><h1>Translation</h1><h2>Dictionary & recognition</h2><div class="group"><div class="setting-row"><div><div class="row-label">Chinese–English dictionary</div><p id="dictionary-status">Loading…</p></div><span class="badge">On device</span></div><div class="setting-row"><div><div class="row-label">Screen text recognition</div><p>Simplified and Traditional Chinese</p></div><span class="badge">On device</span></div></div>
+      <h2>Sentence translation <span class="optional">Optional</span></h2><div class="group key-group"><p>To translate a whole sentence, add your OpenAI API key. The popup will offer a Translate button. Only text you choose to translate is sent online; API charges may apply.</p><form id="key-form"><label for="api-key">OpenAI API key</label><div class="key-input"><input id="api-key" type="password" autocomplete="off" placeholder="Enter a new key"><button type="submit">Save key</button></div></form><div class="key-footer"><span id="key-state"></span><button id="remove-key" class="text-button">Remove key</button></div></div><p class="inline-status" id="key-status" role="status"></p>
+    </section>
+    <section id="pane-about" class="pane" hidden><h1>About</h1><div class="about-title"><img src="tray.png" width="48" height="48" alt=""><div><h2>Hanzi Lens</h2><p id="app-version"></p></div></div><p class="intro">A Chinese reading companion for Windows.</p><div class="group"><div class="setting-row"><div><div class="row-label">Works where you read</div><p>Selected-text lookup and region capture. Hover lookup and automatic subtitle rescanning are not available in this version.</p></div></div><div class="setting-row"><div><div class="row-label">Your text stays local by default</div><p>Dictionary lookup and OCR work offline. Screenshots are processed in memory. Online sentence translation runs only when you request it.</p></div></div></div><p class="footnote">Dictionary: CC-CEDICT / cedict-json · CC BY-SA 4.0<br>OCR: Tesseract · Apache 2.0<br>Independent project, inspired by HanziKey.</p><button id="quit-app">Quit Hanzi Lens</button></section>
+    <div id="app-status" role="status" aria-live="polite"></div>
+  </main><script src="renderer.js"></script>
+</body></html>

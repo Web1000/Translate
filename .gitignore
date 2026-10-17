@@ -1,0 +1,7 @@
+node_modules/
+dist/
+resources/*.traineddata
+resources/cedict.txt
+resources/*.tmp
+.cache/
+*.log

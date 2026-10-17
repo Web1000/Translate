@@ -1,0 +1,28 @@
+name: Windows desktop
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run setup:electron
+      - run: npm run assets
+      - run: npm test
+      - name: Build Windows portable app
+        run: npm run dist:win
+      - name: Upload Windows download
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hanzi-Lens-Windows-x64
+          path: dist/*.exe
+          if-no-files-found: error
+      - run: npx playwright install chromium
+      - run: npm run test:ui
+      - run: npm run test:ocr
+      - run: npm run test:electron
+      - run: npm run test:windows
