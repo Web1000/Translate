@@ -1,0 +1,66 @@
+name: Windows selection diagnostics
+on:
+  push:
+    branches: [offline-translation]
+    paths:
+      - .github/workflows/windows-selection.yml
+      - test/windows-selection.native.cjs
+      - scripts/windows-selection-fixture.ps1
+      - src/copy-selection.ps1
+permissions:
+  contents: write
+  actions: read
+jobs:
+  selection:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Collect failed desktop run logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $runs = gh run list --repo $env:GITHUB_REPOSITORY --workflow windows.yml --limit 12 --json databaseId,headSha,conclusion,status,url,createdAt | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw 'Could not list desktop runs.' }
+          $history = @()
+          foreach ($run in $runs) {
+            $entry = @{ run = $run }
+            if ($run.conclusion -eq 'failure') {
+              $lines = gh run view $run.databaseId --repo $env:GITHUB_REPOSITORY --log-failed
+              if ($LASTEXITCODE -ne 0) { throw "Could not read failed logs for $($run.databaseId)." }
+              $text = $lines -join "`n"
+              $entry.failedLog = $text.Substring([Math]::Max(0, $text.Length - 16000))
+            }
+            $history += $entry
+          }
+          $history | ConvertTo-Json -Depth 8 | Set-Content -Encoding utf8 run-history.json
+      - name: Run native selection checks
+        id: native
+        run: |
+          node --test test/windows-selection.native.cjs 2>&1 | Tee-Object -FilePath selection-test.log
+          exit $LASTEXITCODE
+      - name: Record diagnostics
+        if: always()
+        env:
+          NATIVE_RESULT: ${{ steps.native.outcome }}
+        run: |
+          $report = @{
+            commit = $env:GITHUB_SHA
+            native = $env:NATIVE_RESULT
+            log = if (Test-Path selection-test.log) { Get-Content selection-test.log -Raw } else { 'No log produced.' }
+            history = if (Test-Path run-history.json) { Get-Content run-history.json -Raw | ConvertFrom-Json } else { @() }
+            run_url = "https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+          } | ConvertTo-Json -Depth 12
+          $branch = 'codex-validation-selection'
+          $remoteLine = git ls-remote origin "refs/heads/$branch"
+          $expected = if ($remoteLine) { ($remoteLine -split '\s+')[0] } else { '' }
+          git switch --orphan $branch
+          [System.IO.File]::WriteAllText((Join-Path $PWD 'validation-report.json'), $report, [System.Text.UTF8Encoding]::new($false))
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add validation-report.json
+          git commit -m "Record native selection validation for $env:GITHUB_SHA"
+          git push origin "HEAD:refs/heads/$branch" "--force-with-lease=refs/heads/${branch}:$expected"

@@ -1,6 +1,6 @@
 {
   "name": "hanzi-lens",
-  "version": "0.2.1",
+  "version": "0.3.0-beta.1",
   "description": "Chinese-English lookup and screen capture for Windows",
   "private": true,
   "main": "src/main.cjs",
@@ -14,10 +14,13 @@
     "test:ui": "node --test test/ui.smoke.cjs",
     "test:ocr": "node scripts/smoke-ocr.cjs",
     "test:electron": "node --test test/electron.smoke.cjs",
-    "test:windows": "node --test test/windows-selection.native.cjs"
+    "test:windows": "node --test test/windows-selection.native.cjs",
+    "test:translation": "node scripts/translation-smoke.cjs"
   },
   "dependencies": {
+    "@huggingface/transformers": "4.3.1",
     "cedict-json": "1.3.20251213",
+    "opencc-js": "1.4.2",
     "tesseract.js": "7.0.0"
   },
   "devDependencies": {
@@ -48,7 +51,9 @@
       }
     ],
     "asarUnpack": [
-      "node_modules/**/*"
+      "node_modules/**/*",
+      "src/local-translation-worker.cjs",
+      "src/translation-text.cjs"
     ],
     "win": {
       "target": "portable",

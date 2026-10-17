@@ -1,4 +1,4 @@
-# Hanzi Lens for Windows — 0.2.1
+# Hanzi Lens for Windows — 0.3.0-beta.1
 
 A background Chinese reading companion with compact lookup popups. Inspired by HanziKey; this is an independent project, not an official Windows port.
 
@@ -6,11 +6,11 @@ A background Chinese reading companion with compact lookup popups. Inspired by H
 
 Source: open [Web1000/Translate](https://github.com/Web1000/Translate), then **Code → Download ZIP**. Source downloads need the setup commands below; they do not include the compiled app or downloaded OCR models.
 
-Windows app: open [Actions → Windows desktop](https://github.com/Web1000/Translate/actions/workflows/windows.yml), choose the latest run for `main`, and download **Hanzi-Lens-Windows-x64** under **Artifacts**. Sign in to GitHub if prompted. Extract the artifact ZIP, quit any older copy, and launch the EXE. The artifact appears after the **Upload Windows download** step completes. Windows-specific tests run afterward; check their results separately, as an uploaded build alone does not establish that those tests passed.
+Windows app: open [Actions → Windows desktop](https://github.com/Web1000/Translate/actions/workflows/windows.yml), choose the latest run for `main`, and download **Hanzi-Lens-Windows-x64** under **Artifacts**. Sign in to GitHub if prompted. Extract the artifact ZIP, quit any older copy, and launch the EXE. Use a run with a green **Success** result. The **Upload Windows download** step now runs only after every required check, including native Windows selection, passes.
 
 ## Try the Windows app
 
-Quit the previous version first (close its window or press Ctrl+C in the terminal that started it). Open `Hanzi Lens 0.2.1.exe` from `dist/`. It is portable and unsigned; no Node.js installation is needed to use the executable.
+Quit the previous version first (close its window or press Ctrl+C in the terminal that started it). Open `Hanzi Lens 0.3.0-beta.1.exe` from `dist/`. It is portable and unsigned; no Node.js installation is needed to use the executable.
 
 The main window contains **settings only**. Close it when you are done; Hanzi Lens keeps running in the system tray. Reopen Settings from the tray icon, or use its **Quit Hanzi Lens** menu item to stop the app and release its shortcuts.
 
@@ -21,7 +21,7 @@ The main window contains **settings only**. Close it when you are done; Hanzi Le
 
 In Settings you can enable or disable each feature, change its shortcut, toggle tone colors and pinyin, choose text size, and prefer original, Simplified, or Traditional characters. Changes persist between launches. In **Shortcuts**, click the shortcut field, press the new combination, then **Save shortcuts**. Conflicts are reported and the previous settings remain active.
 
-## Fixed in 0.2.1
+## Clipboard fix from 0.2.1
 
 Selected-text lookup now uses Electron 44's asynchronous `clipboard.read()`, `readText()`, `write()` and `ClipboardItem` APIs. This fixes the `clipboard.readHTML is not a function` error. A regression test now exercises selection reading and text/HTML restoration with the real Electron clipboard, substituting only the Windows helper process.
 
@@ -33,11 +33,25 @@ The Windows selection helper first reads the selected range through UI Automatio
 
 The helper is launched with PowerShell `-EncodedCommand` to preserve command quoting. No PowerShell execution-policy change or administrator launch is required. Elevated apps and apps that block copying may still require screen capture.
 
-## Sentence translation
+## Offline sentence translation
 
-English dictionary definitions work offline. Whole-sentence translation remains optional and online: add your own OpenAI API key under **Settings → Translation**, then use **Translate sentence** in the result popup. This sends the current text to OpenAI using `gpt-4.1-mini`; API usage may incur charges. Translation never runs automatically. Screenshots are not uploaded. Keys use the operating system's encrypted storage.
+New in 0.3.0-beta.1: free, CPU-based sentence translation with a separately downloaded language pack (about 120 MB). Real translations passed in both source and packaged Windows Electron. Short test sentences took 115–315 ms after warm-up on the Windows CI machine; see [VALIDATION.md](VALIDATION.md) for measurements and validation history.
 
-Hover lookup, automatic subtitle rescanning, and offline whole-sentence translation are not implemented.
+Open **Settings → Translation → Download language pack**. The one-time download comes from Hugging Face, with an immutable model revision, model license, file sizes, and checksums verified before installation. Download progress and cancellation are available. The pack is stored in the app's user-data folder and survives app updates; it is not bundled in every executable download.
+
+After installation, automatic offline translation is enabled. Selection and OCR results show dictionary definitions first, then the English sentence. Both Simplified and Traditional input are supported by normalizing Traditional text with OpenCC before model inference; the original text stays in the lookup.
+
+The default candidate is Xenova's int8 ONNX conversion of OPUS-MT Chinese → English. It runs through Transformers.js / ONNX Runtime's CPU provider with at most two inference threads. No GPU, account, API key, or per-translation fee is needed. The converted pack explicitly names Helsinki-NLP as its base model. The installer verifies the declared model license, or that named base model’s license if the conversion has no separate declaration; Apache 2.0 and CC BY 4.0 are supported. Attribution and the applicable upstream model card are retained in the pack. The validated OPUS-MT source uses CC BY 4.0.
+
+The model stays loaded while enabled, including a warm-up generation at startup. Turn the feature off to release its process and memory; remove the pack to reclaim disk space. Translation runs in a separate Electron utility process, with remote-model loading disabled during inference. A failed engine does not need to close Settings or dictionary lookup. New lookups cancel outdated translations instead of building an unlimited queue.
+
+Inputs over 2,000 characters are rejected with a clear popup message rather than silently shortened. Longer sentences are split into bounded chunks, with paragraph breaks retained. This small model is intended as a reading aid; translations can be awkward or wrong, particularly for names, idioms, or complex context.
+
+Performance depends on CPU and RAM. There is no near-instant guarantee for all PCs, no established minimum RAM yet, and no claim that older hardware has been benchmarked. The included real-model smoke test measures loading, generation latency, and benchmark-process memory. Check `translation-benchmark.json` in a validated Windows artifact for measured results on the CI machine, not your own PC.
+
+The online OpenAI option is retained as a manual alternative. It never runs as an automatic fallback for a failed local translation. It sends text only when you explicitly choose **Translate online** in the popup.
+
+Hover lookup and automatic subtitle rescanning are not implemented.
 
 ## Run from source on Windows
 
@@ -63,6 +77,7 @@ npm.cmd run test:ui
 npm.cmd run test:ocr
 npm.cmd run test:electron
 npm.cmd run test:windows
+npm.cmd run test:translation -- --install
 ```
 
 `test:windows` briefly opens a native test window, selects known Chinese text, and exercises the actual Windows selection helper in automatic and clipboard modes. Let that window keep focus until the test finishes. It runs only on Windows; Linux reports these checks as skipped. It does not use your own documents. The standard Electron test uses a separate temporary settings directory and does not change your saved settings.
@@ -76,7 +91,13 @@ Validation coverage:
 
 In Linux cloud tasks, use `CHROMIUM_PATH=/usr/bin/chromium` for the browser/OCR tests. The Electron integration test can use `ELECTRON_TEST_HEADLESS=1 ELECTRON_TEST_NO_SANDBOX=1` and writable `XDG_CONFIG_HOME` / `XDG_CACHE_HOME`. Those overrides apply only to the restricted test container; the shipped app keeps its sandbox. `ELECTRON_APP_PATH` can point the integration test at an unpacked build.
 
-The Windows CI workflow includes the native checks and a portable build. It has not been run in this cloud task. Live Windows selection, tray behavior, global shortcuts, and monitor capture still need confirmation on a Windows desktop.
+The Windows CI workflow includes the native checks, real-model checks, and a portable build. See VALIDATION.md for observed outcomes. Live Windows selection, tray behavior, global shortcuts, and monitor capture still need confirmation on a Windows desktop.
+
+## Model validation
+
+`npm run test:translation -- --install` downloads a real pack, checks it, runs Simplified/Traditional translation cases, and writes `.cache/translation-benchmark.json`. Subsequent runs need no network while that pack remains installed. The Windows workflow requires this check and a packaged-app test with the real pack before uploading a candidate executable. It includes the measured report with the executable.
+
+The cloud machine may need the Hugging Face network allowlist enabled before this command can run. A missing pack or blocked host is an unrun real-model test, not a passing translation check. For the feature branch, CI also records outcomes in the generated `codex-validation-offline-translation` branch so the cloud session can inspect results through its available Git access.
 
 ## Build
 
@@ -84,18 +105,11 @@ The Windows CI workflow includes the native checks and a portable build. It has 
 npm.cmd run dist:win
 ```
 
-For a Linux cross-build:
-
-```sh
-node scripts/install-electron.cjs win32
-npm run dist:win -- --config.electronDist=.cache/electron-win32
-```
-
-The portable executable in `dist/` includes the dictionary, OCR workers/models, and Windows selection helper. It is unsigned; production signing is a separate release task.
+Build the Windows release on Windows or through the included Windows GitHub Actions workflow. The translation runtime has platform-specific native dependencies; a Linux cross-build is no longer the supported release path. The executable includes the CPU runtime, dictionary, OCR models, and selection helper. The translation language pack is downloaded separately. Signing remains a separate release task.
 
 ## Privacy and limitations
 
-Dictionary and OCR processing are local; no accounts or analytics. Screenshots are held in memory, not saved by the app. Selected-text lookup uses accessibility first; the copy fallback attempts to restore standard text/HTML/RTF/image clipboard formats when the clipboard has not changed again. Application-specific clipboard formats may not survive. Prefer capture if you need to keep such formats intact.
+Dictionary, OCR, and offline sentence translation are local; no accounts or analytics. Screenshots are held in memory, not saved by the app. Selected-text lookup uses accessibility first; the copy fallback attempts to restore standard text/HTML/RTF/image clipboard formats when the clipboard has not changed again. Application-specific clipboard formats may not survive. Prefer capture if you need to keep such formats intact.
 
 Dictionary segmentation uses longest matching words, not contextual language parsing. Polyphonic words can have several pronunciations, and tone colors reflect dictionary tones. OCR quality depends on size, contrast, and layout. Protected video may capture as black.
 

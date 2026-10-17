@@ -6,6 +6,10 @@ const os = require('node:os');
 const { _electron: electron } = require('playwright');
 test('shortcuts produce only a compact popup; settings, capture, errors and persistence work', { timeout: 90000 }, async () => {
   const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'hanzi-lens-test-'));
+  if (process.env.ELECTRON_TEST_LANGUAGE_PACK) {
+    fs.mkdirSync(path.join(userData, 'translation-packs'), { recursive: true });
+    fs.cpSync(process.env.ELECTRON_TEST_LANGUAGE_PACK, path.join(userData, 'translation-packs/opus-zh-en-q8-v1'), { recursive: true });
+  }
   const args = [`--user-data-dir=${userData}`, ...(process.env.ELECTRON_APP_PATH ? [] : [path.resolve(__dirname, '..')])];
   if (process.env.ELECTRON_TEST_NO_SANDBOX === '1') args.unshift('--no-sandbox');
   if (process.env.ELECTRON_TEST_HEADLESS === '1') args.unshift('--ozone-platform=headless');
@@ -17,6 +21,17 @@ test('shortcuts produce only a compact popup; settings, capture, errors and pers
     const settings = await page.evaluate(() => window.hanzi.settings());
     assert.ok(settings.dictionaryEntries > 100000);
     assert.equal(await page.locator('textarea').count(), 0);
+    const isolatedEngine = await application.evaluate(async ({ app }) => {
+      const require = process.getBuiltinModule('node:module').createRequire(`${app.getAppPath()}/package.json`);
+      const { LocalTranslator } = require(`${app.getAppPath()}/src/local-translator.cjs`);
+      const { utilityWorker } = require(`${app.getAppPath()}/src/utility-worker.cjs`);
+      const probe = new LocalTranslator({ root: `${app.getPath('userData')}/missing-pack`, state: { installed: true } }, { workerFactory: utilityWorker, timeoutMs: 20000 });
+      await probe.setEnabled(true);
+      const state = probe.snapshot(); await probe.stop(); return state;
+    });
+    assert.equal(isolatedEngine.engine, 'error');
+    assert.doesNotMatch(isolatedEngine.engineError, /Cannot find module|sharp.*install|timed out/i);
+    assert.match(isolatedEngine.engineError, /local|file|config/i);
     await application.evaluate(async ({ app, globalShortcut, screen, BrowserWindow, clipboard, ClipboardItem }) => {
       const require = process.getBuiltinModule('node:module').createRequire(`${app.getAppPath()}/package.json`);
       // Use the real Electron clipboard; substitute only the Windows helper process.
@@ -51,6 +66,18 @@ test('shortcuts produce only a compact popup; settings, capture, errors and pers
     });
     assert.equal(restoredClipboard.text, 'previous clipboard');
     assert.match(restoredClipboard.html, /<b>previous clipboard<\/b>/);
+    if (process.env.ELECTRON_TEST_LANGUAGE_PACK) {
+      await page.waitForFunction(async () => (await window.hanzi.settings()).localTranslation.installed, null, { timeout: 30000 });
+      await page.evaluate(() => window.hanzi.saveSettings({ offlineTranslationEnabled: true }));
+      try {
+        await popup.waitForFunction(() => /Chinese/i.test(document.getElementById('translation').textContent), null, { timeout: 60000 });
+      } catch (error) {
+        console.error('Offline popup diagnostic:', await popup.evaluate(() => ({ text: document.getElementById('translation').textContent, status: document.getElementById('sentence-status').textContent })));
+        console.error('Offline engine diagnostic:', await page.evaluate(async () => (await window.hanzi.settings()).localTranslation));
+        throw error;
+      }
+      assert.match(await popup.locator('#sentence-status').innerText(), /On-device/);
+    }
     await application.evaluate(async ({ clipboard }) => {
       if (globalThis.selectionClipboardBackup.length) await clipboard.write(globalThis.selectionClipboardBackup);
       else clipboard.clear();
@@ -97,11 +124,16 @@ test('shortcuts produce only a compact popup; settings, capture, errors and pers
     const canceled = await cancelOpened;
     await canceled.waitForLoadState('domcontentloaded');
     const closed = canceled.waitForEvent('close');
-    await canceled.keyboard.down('Escape');
+    // Escape destroys the capture renderer synchronously. Send the native key
+    // through the surviving main process so CDP does not lose its reply target.
+    await application.evaluate(({ BrowserWindow }) => {
+      const capture = BrowserWindow.getAllWindows().find(window => window.webContents.getURL().endsWith('/capture.html'));
+      if (!capture) throw new Error('Capture window was not open before Escape.');
+      capture.webContents.sendInputEvent({ type: 'keyDown', keyCode: 'Escape' });
+    });
     await closed;
-    await page.keyboard.up('Escape');
     assert.equal(await application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().filter(window => window.isVisible()).length), 0);
-    await page.evaluate(() => window.hanzi.saveSettings({ selectionEnabled: false, captureEnabled: false, selectionShortcut: 'Control+Alt+L', fontSize: 'large' }));
+    await page.evaluate(() => window.hanzi.saveSettings({ selectionEnabled: false, captureEnabled: false, selectionShortcut: 'Control+Alt+L', fontSize: 'large', offlineTranslationEnabled: false }));
     assert.equal(await application.evaluate(() => globalThis.callbacks.size), 0);
     await application.close(); application = await launch();
     const restarted = await application.firstWindow(); await restarted.waitForLoadState('domcontentloaded');

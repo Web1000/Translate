@@ -83,3 +83,34 @@ test('capture crops a reversed drag with display scaling', async () => {
     assert.deepEqual(size, [400, 300]);
   } finally { await browser.close(); }
 });
+test('language-pack controls expose progress and popup ignores outdated sentence results', async () => {
+  const browser = await chromium.launch({ ...options, headless: true });
+  try {
+    const page = await browser.newPage({ viewport: { width: 900, height: 800 } });
+    const settings = { ...defaults, hasKey: false, dictionaryEntries: 124188, version: '0.3.0-beta.1', shortcutErrors: [], warning: '', localTranslation: { phase: 'missing', installed: false, engine: 'idle' } };
+    await page.addInitScript(settings => { window.hanzi = {
+      settings: async () => settings, onSettings: callback => { window.receiveSettings = callback; },
+      installLanguagePack: async () => {
+        const next = { ...settings, localTranslation: { phase: 'downloading', installed: false, engine: 'idle', bytes: 50, totalBytes: 100 } };
+        window.receiveSettings(next); return next;
+      }
+    }; }, settings);
+    await load(page, 'index.html'); await page.getByRole('button', { name: 'Translation', exact: false }).first().click();
+    assert.equal(await page.getByRole('checkbox', { name: 'Enable offline sentence translation' }).isDisabled(), true);
+    await page.getByRole('button', { name: 'Download language pack', exact: true }).click();
+    assert.equal(await page.locator('#pack-progress').isVisible(), true);
+    assert.equal(await page.locator('#pack-progress').getAttribute('value'), '50');
+    assert.equal(await page.getByRole('button', { name: 'Cancel download' }).isVisible(), true);
+    const dictionary = parseDictionary(require('cedict-json'));
+    const data = { id: 10, status: 'ready', text: '你好。', tokens: lookup(dictionary, '你好。'), source: 'selection', preferences: { ...defaults, offlineTranslationEnabled: true }, localTranslation: { installed: true, engine: 'loading' }, translationStatus: 'loading', translationSource: 'offline' };
+    const popup = await browser.newPage({ viewport: { width: 520, height: 380 } });
+    await popup.addInitScript(data => { window.hanzi = { result: async () => data, onResult: callback => { window.receiveResult = callback; } }; }, data);
+    await load(popup, 'popup.html'); await popup.locator('#result').waitFor({ state: 'visible' });
+    assert.match(await popup.locator('#definitions').innerText(), /hello/);
+    assert.match(await popup.locator('#sentence-status').innerText(), /Loading offline/);
+    await popup.evaluate(data => window.receiveResult(data), { ...data, translationStatus: 'ready', translation: 'Hello.', localTranslation: { installed: true, engine: 'ready' } });
+    assert.equal(await popup.locator('#translation').innerText(), 'Hello.');
+    await popup.evaluate(data => window.receiveResult(data), { ...data, id: 9, translationStatus: 'ready', translation: 'Outdated result' });
+    assert.equal(await popup.locator('#translation').innerText(), 'Hello.');
+  } finally { await browser.close(); }
+});

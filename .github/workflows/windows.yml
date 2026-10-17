@@ -1,8 +1,13 @@
 name: Windows desktop
 on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: write
 jobs:
   windows:
     runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      ONNXRUNTIME_NODE_INSTALL: skip
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -13,16 +18,100 @@ jobs:
       - run: npm run setup:electron
       - run: npm run assets
       - run: npm test
-      - name: Build Windows portable app
-        run: npm run dist:win
-      - name: Upload Windows download
-        uses: actions/upload-artifact@v4
+      - uses: actions/cache/restore@v4
+        id: model-cache
         with:
-          name: Hanzi-Lens-Windows-x64
-          path: dist/*.exe
-          if-no-files-found: error
+          path: .cache/language-packs
+          key: opus-zh-en-q8-v1-${{ hashFiles('src/model-pack.cjs') }}
+      - name: Verify real offline translations and measure CPU latency
+        id: translation
+        run: |
+          New-Item -ItemType Directory -Force .cache | Out-Null
+          npm run test:translation -- --install 2>&1 | Tee-Object -FilePath .cache/offline-translation.log
+          exit $LASTEXITCODE
+      - name: Cache the verified language pack
+        if: steps.model-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/language-packs
+          key: ${{ steps.model-cache.outputs.cache-primary-key }}
+      - name: Build Windows portable app
+        id: build
+        run: npm run dist:win
       - run: npx playwright install chromium
       - run: npm run test:ui
       - run: npm run test:ocr
-      - run: npm run test:electron
-      - run: npm run test:windows
+      - name: Test real offline translations in Electron
+        id: electron
+        run: |
+          npm run test:electron 2>&1 | Tee-Object -FilePath .cache/electron-translation.log
+          exit $LASTEXITCODE
+        env:
+          ELECTRON_TEST_LANGUAGE_PACK: ${{ github.workspace }}/.cache/language-packs/opus-zh-en-q8-v1
+      - name: Test the packaged Windows app with the real language pack
+        id: packaged
+        run: |
+          npm run test:electron 2>&1 | Tee-Object -FilePath .cache/packaged-translation.log
+          exit $LASTEXITCODE
+        env:
+          ELECTRON_TEST_LANGUAGE_PACK: ${{ github.workspace }}/.cache/language-packs/opus-zh-en-q8-v1
+          ELECTRON_APP_PATH: ${{ github.workspace }}/dist/win-unpacked/Hanzi Lens.exe
+      - name: Test native Windows text selection
+        id: native
+        run: |
+          npm run test:windows 2>&1 | Tee-Object -FilePath .cache/native-selection.log
+          exit $LASTEXITCODE
+      - name: Include the CPU benchmark report
+        run: Copy-Item .cache/translation-benchmark.json dist/translation-benchmark.json
+      - name: Upload Windows download
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hanzi-Lens-Windows-x64
+          path: |
+            dist/*.exe
+            dist/translation-benchmark.json
+          if-no-files-found: error
+      - name: Record validation results
+        if: always() && github.event_name == 'push' && (github.ref == 'refs/heads/offline-translation' || github.ref == 'refs/heads/main')
+        env:
+          VALIDATED_COMMIT: ${{ github.sha }}
+          TRANSLATION_RESULT: ${{ steps.translation.outcome }}
+          BUILD_RESULT: ${{ steps.build.outcome }}
+          ELECTRON_RESULT: ${{ steps.electron.outcome }}
+          PACKAGED_RESULT: ${{ steps.packaged.outcome }}
+          NATIVE_RESULT: ${{ steps.native.outcome }}
+          UPLOAD_RESULT: ${{ steps.upload.outcome }}
+        run: |
+          $report = @{
+            commit = $env:VALIDATED_COMMIT
+            translation = $env:TRANSLATION_RESULT
+            build = $env:BUILD_RESULT
+            electron = $env:ELECTRON_RESULT
+            packaged = $env:PACKAGED_RESULT
+            native = $env:NATIVE_RESULT
+            upload = $env:UPLOAD_RESULT
+            run_url = "https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+          }
+          if (Test-Path .cache/translation-benchmark.json) {
+            $report.benchmark = Get-Content .cache/translation-benchmark.json -Raw | ConvertFrom-Json
+          }
+          $json = $report | ConvertTo-Json -Depth 12
+          foreach ($name in @('offline-translation', 'electron-translation', 'packaged-translation', 'native-selection')) {
+            $file = ".cache/$name.log"
+            if (Test-Path $file) {
+              $text = Get-Content $file -Raw
+              $report[$name] = $text.Substring([Math]::Max(0, $text.Length - 12000))
+            }
+          }
+          $json = $report | ConvertTo-Json -Depth 12
+          $branch = if ($env:GITHUB_REF -eq 'refs/heads/main') { 'codex-validation-main' } else { 'codex-validation-offline-translation' }
+          $remoteLine = git ls-remote origin "refs/heads/$branch"
+          $expected = if ($remoteLine) { ($remoteLine -split '\s+')[0] } else { '' }
+          git switch --orphan $branch
+          [System.IO.File]::WriteAllText((Join-Path $PWD 'validation-report.json'), $json, [System.Text.UTF8Encoding]::new($false))
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add validation-report.json
+          git commit -m "Record offline translation validation for $env:VALIDATED_COMMIT"
+          git push origin "HEAD:refs/heads/$branch" "--force-with-lease=refs/heads/${branch}:$expected"

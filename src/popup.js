@@ -66,22 +66,28 @@ function render(data) {
   }
   $('translation').textContent = data.translation || '';
   $('translation').hidden = !data.translation;
+  const local = data.localTranslation || { installed: false, engine: 'idle' };
+  $('sentence-status').textContent = data.translationStatus === 'loading' ? local.engine === 'loading' && data.translationSource === 'offline' ? 'Loading offline translation…' : 'Translating…' : data.translationStatus === 'error' ? data.translationError : data.translation ? data.translationSource === 'offline' ? 'On-device translation' : 'Online translation' : '';
+  $('translation-settings').hidden = Boolean(local.installed && prefs.offlineTranslationEnabled);
+  $('offline-retry').hidden = !(local.installed && prefs.offlineTranslationEnabled && data.translationStatus === 'error');
   $('lookup-note').textContent = matches ? '' : 'No dictionary matches.';
   $('translate').hidden = !data.hasKey;
   $('translate').disabled = translating;
-  $('translate').textContent = translating ? 'Translating…' : 'Translate sentence';
+  $('translate').textContent = translating ? 'Translating…' : 'Translate online';
   $('translate').title = 'Send this text to OpenAI for English translation';
   updateSpeech();
 }
 $('close').addEventListener('click', () => { window.speechSynthesis?.cancel(); window.hanzi.closePopup(); });
 $('open-settings').addEventListener('click', () => window.hanzi.showSettings());
+$('translation-settings').addEventListener('click', () => window.hanzi.showSettings());
+$('offline-retry').addEventListener('click', () => window.hanzi.offlineTranslate(current.id).catch(error => { $('action-status').textContent = message(error); }));
 $('retry-capture').addEventListener('click', () => window.hanzi.capture().catch(error => { $('message').textContent = message(error); }));
 window.addEventListener('keydown', event => { if (event.key === 'Escape') { window.speechSynthesis?.cancel(); window.hanzi.closePopup(); } });
 $('translate').addEventListener('click', async () => {
   const id = current.id; translating = true; $('translate').disabled = true; $('translate').textContent = 'Translating…'; $('action-status').textContent = '';
   try { await window.hanzi.translate(id); }
   catch (error) { if (current.id === id) $('action-status').textContent = message(error); }
-  finally { if (current.id === id) { translating = false; $('translate').disabled = false; $('translate').textContent = 'Translate sentence'; } }
+  finally { if (current.id === id) { translating = false; $('translate').disabled = false; $('translate').textContent = 'Translate online'; } }
 });
 $('speak').addEventListener('click', () => {
   const available = voices(); if (!available.length) return;
