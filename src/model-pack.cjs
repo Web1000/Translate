@@ -27,7 +27,7 @@ async function digest(filename, algorithm, gitBlob = false) {
 }
 function describeFiles(metadata) {
   if (!/^[a-f0-9]{40}$/.test(metadata.sha || '')) throw new Error('The model host did not provide an immutable revision.');
-  if (metadata.cardData?.license !== MODEL.license) throw new Error('The language pack license could not be verified as Apache 2.0.');
+  if (metadata.cardData?.license !== MODEL.license) throw new Error(`The language pack license could not be verified as Apache 2.0 (reported: ${JSON.stringify(metadata.cardData?.license ?? null)}).`);
   const siblings = new Map((metadata.siblings || []).map(file => [file.rfilename, file]));
   for (const name of REQUIRED) if (!siblings.has(name)) throw new Error(`The language pack is missing ${name}.`);
   const files = [...ALLOWED].filter(name => siblings.has(name)).map(name => {
@@ -76,6 +76,7 @@ class ModelPack extends EventEmitter {
     this.update({ phase: 'downloading', bytes: 0, totalBytes: 0, error: '' });
     try {
       const metadata = await this.json(`https://huggingface.co/api/models/${MODEL.id}?blobs=true`, signal);
+      this.metadata = metadata;
       const files = describeFiles(metadata), totalBytes = files.reduce((sum, file) => sum + file.size, 0);
       this.update({ totalBytes }); await fsp.mkdir(staging, { recursive: true });
       let completed = 0;

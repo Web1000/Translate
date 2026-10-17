@@ -9,7 +9,12 @@ const { LocalTranslator } = require('../src/local-translator.cjs');
   pack.on('change', state => { if (state.phase === 'downloading' && state.totalBytes) process.stdout.write(`\rLanguage pack: ${(100 * state.bytes / state.totalBytes).toFixed(0)}%`); });
   if (!await pack.check()) {
     if (!process.argv.includes('--install')) throw new Error('Language pack missing. Run npm run test:translation -- --install to download and verify it first.');
-    await pack.install(); console.log('\nLanguage pack license, revision, sizes, and checksums verified.');
+    try { await pack.install(); }
+    catch (error) {
+      if (pack.metadata) console.error('Model metadata:', JSON.stringify({ revision: pack.metadata.sha, card: pack.metadata.cardData, files: pack.metadata.siblings?.map(file => file.rfilename) }));
+      throw error;
+    }
+    console.log('\nLanguage pack license, revision, sizes, and checksums verified.');
   }
   const engine = new LocalTranslator(pack);
   try {
