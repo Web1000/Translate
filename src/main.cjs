@@ -1,9 +1,8 @@
-const { app, BrowserWindow, clipboard, ClipboardItem, desktopCapturer, globalShortcut, ipcMain, screen, safeStorage, Tray, Menu, nativeImage, nativeTheme } = require('electron');
+const { app, BrowserWindow, clipboard, ClipboardItem, desktopCapturer, globalShortcut, ipcMain, screen, Tray, Menu, nativeImage, nativeTheme } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { createOcrWorker } = require('./ocr.cjs');
 const { parseDictionary, lookup } = require('./dictionary.cjs');
-const { translate } = require('./translation.cjs');
 const { ModelPack } = require('./model-pack.cjs');
 const { LocalTranslator } = require('./local-translator.cjs');
 const { utilityWorker } = require('./utility-worker.cjs');
@@ -15,13 +14,11 @@ let shortcutErrors = [], preferencesWarning = '', revision = 0;
 let result = { id: 0, status: 'idle', text: '', tokens: [], source: 'selection', translation: '' };
 let localPack, localTranslator, translationRequest = 0;
 const dataRoot = () => app.isPackaged ? path.join(process.resourcesPath, 'data') : path.join(__dirname, '..', 'resources');
-const keyPath = () => path.join(app.getPath('userData'), 'translation-key');
 const preferencesPath = () => path.join(app.getPath('userData'), 'preferences.json');
 const alive = window => window && !window.isDestroyed();
-function key() { try { return safeStorage.decryptString(fs.readFileSync(keyPath())); } catch { return ''; } }
 function offlineState() { return localTranslator?.snapshot() || { phase: 'checking', installed: false, enabled: false, engine: 'idle' }; }
-function resultSnapshot() { return { ...result, preferences, hasKey: Boolean(key()), localTranslation: offlineState() }; }
-function snapshot() { return { ...preferences, hasKey: Boolean(key()), dictionaryEntries: dictionary?.count || 0, shortcutErrors, warning: preferencesWarning, version: app.getVersion(), localTranslation: offlineState() }; }
+function resultSnapshot() { return { ...result, preferences, localTranslation: offlineState() }; }
+function snapshot() { return { ...preferences, dictionaryEntries: dictionary?.count || 0, shortcutErrors, warning: preferencesWarning, version: app.getVersion(), localTranslation: offlineState() }; }
 function sendResult() { if (alive(popup)) popup.webContents.send('result', resultSnapshot()); }
 function sendSettings() {
   if (alive(main)) main.webContents.send('settings-changed', snapshot());
@@ -177,32 +174,6 @@ function installIpc() {
     } catch (error) { await showResult({ status: 'error', source: 'capture', error: `OCR failed: ${error.message}` }, anchor); }
     finally { ocrBusy = false; }
   });
-  ipcMain.handle('save-key', (event, value) => {
-    trust(event, [main]);
-    if (typeof value !== 'string' || value.length > 1000) throw new Error('Invalid API key.');
-    if (!value.trim()) fs.rmSync(keyPath(), { force: true });
-    else {
-      if (!safeStorage.isEncryptionAvailable() || (process.platform === 'linux' && safeStorage.getSelectedStorageBackend() === 'basic_text')) throw new Error('Secure credential storage is unavailable.');
-      fs.writeFileSync(keyPath(), safeStorage.encryptString(value.trim()), { mode: 0o600 });
-    }
-    sendSettings(); return snapshot();
-  });
-  ipcMain.handle('translate', async (event, id) => {
-    trust(event, [popup]);
-    if (id !== result.id || result.status !== 'ready') throw new Error('This lookup has changed. Try again.');
-    const request = ++translationRequest; localTranslator.cancel();
-    result.translationStatus = 'loading'; result.translationSource = 'online'; result.translationError = ''; sendResult();
-    let output;
-    try { output = await translate(result.text, key()); }
-    catch (error) {
-      if (id === result.id && request === translationRequest) { result.translationStatus = 'error'; result.translationError = error.message; sendResult(); }
-      throw error;
-    }
-    if (id !== result.id || request !== translationRequest) return null;
-    result.translation = output;
-    result.translationSource = 'online'; result.translationStatus = 'ready'; result.translationError = ''; sendResult();
-    return output;
-  });
   ipcMain.handle('offline-translate', async (event, id) => {
     trust(event, [popup]); if (id !== result.id) throw new Error('This lookup has changed.');
     if (!preferences.offlineTranslationEnabled) throw new Error('Offline translation is turned off.');
@@ -233,6 +204,9 @@ else {
   app.whenReady().then(async () => {
     nativeTheme.themeSource = 'dark';
     Menu.setApplicationMenu(null);
+    // Retire the encrypted key file created by versions with paid translation.
+    try { fs.rmSync(path.join(app.getPath('userData'), 'translation-key'), { force: true }); }
+    catch { preferencesWarning = 'Could not remove the obsolete translation-key file from app data.'; }
     try { preferences = validatePreferences(JSON.parse(fs.readFileSync(preferencesPath(), 'utf8'))); }
     catch (error) { if (error.code !== 'ENOENT') preferencesWarning = 'Saved settings could not be read. Default settings are active until you save new settings.'; }
     try { dictionary = parseDictionary(require('cedict-json')); } catch { dictionary = null; }

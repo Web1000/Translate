@@ -6,8 +6,6 @@ contextBridge.exposeInMainWorld('hanzi', {
   settings: () => ipcRenderer.invoke('settings'),
   saveSettings: patch => ipcRenderer.invoke('save-settings', patch),
   shortcutRecording: enabled => ipcRenderer.invoke('shortcut-recording', enabled),
-  saveKey: key => ipcRenderer.invoke('save-key', key),
-  translate: id => ipcRenderer.invoke('translate', id),
   offlineTranslate: id => ipcRenderer.invoke('offline-translate', id),
   installLanguagePack: () => ipcRenderer.invoke('install-language-pack'),
   cancelLanguagePack: () => ipcRenderer.invoke('cancel-language-pack'),

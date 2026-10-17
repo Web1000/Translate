@@ -14,7 +14,7 @@ async function load(page, filename) {
 test('settings-only UI saves toggles and records shortcut keys without losing changes on blur', async () => {
   const browser = await chromium.launch({ ...options, headless: true });
   try {
-    let preferences = { ...defaults, hasKey: false, dictionaryEntries: 124188, version: '0.2.0', shortcutErrors: [], warning: '' };
+    let preferences = { ...defaults, dictionaryEntries: 124188, version: '0.2.0', shortcutErrors: [], warning: '' };
     const page = await browser.newPage({ viewport: { width: 900, height: 640 } });
     const errors = []; page.on('pageerror', error => errors.push(error.message));
     await page.exposeFunction('readSettings', () => preferences);
@@ -30,6 +30,7 @@ test('settings-only UI saves toggles and records shortcut keys without losing ch
     await load(page, 'index.html');
     await page.waitForFunction(() => document.getElementById('selection-hint').textContent.includes('Ctrl'));
     assert.equal(await page.locator('textarea').count(), 0);
+    assert.equal(await page.locator('#api-key, #key-form, #translate').count(), 0);
     await page.screenshot({ path: path.resolve(__dirname, '../.cache/settings-v2.png') });
     await page.getByRole('checkbox', { name: 'Enable text selection' }).uncheck();
     await page.waitForFunction(() => !document.getElementById('selectionEnabled').disabled);
@@ -48,16 +49,17 @@ test('compact popup renders tone-colored rows in both scripts and exposes errors
   const browser = await chromium.launch({ ...options, headless: true });
   try {
     const dictionary = parseDictionary(require('cedict-json'));
-    const data = { id: 1, status: 'ready', text: '普音首', tokens: lookup(dictionary, '普音首'), source: 'selection', preferences: defaults, hasKey: false };
+    const data = { id: 1, status: 'ready', text: '普音首', tokens: lookup(dictionary, '普音首'), source: 'selection', preferences: defaults };
     const page = await browser.newPage({ viewport: { width: 520, height: 330 } });
     const errors = []; page.on('pageerror', error => errors.push(error.message));
     await page.addInitScript(data => { window.hanzi = {
       result: async () => data, onResult: callback => { window.receiveResult = callback; },
-      closePopup() {}, showSettings() {}, capture: async () => {}, translate: async () => 'English'
+      closePopup() {}, showSettings() {}, capture: async () => {}
     }; }, data);
     await load(page, 'popup.html');
     await page.locator('#result').waitFor({ state: 'visible' });
     assert.equal(await page.locator('textarea').count(), 0);
+    assert.equal(await page.locator('#api-key, #key-form, #translate').count(), 0);
     assert.ok(await page.locator('.tone-3').count() > 0);
     assert.match(await page.locator('#definitions').innerText(), /sound/);
     await page.screenshot({ path: path.resolve(__dirname, '../.cache/popup-v2.png') });
@@ -83,11 +85,43 @@ test('capture crops a reversed drag with display scaling', async () => {
     assert.deepEqual(size, [400, 300]);
   } finally { await browser.close(); }
 });
+test('screenshot passage shows one row per Chinese word, with other readings available on demand', async () => {
+  const browser = await chromium.launch({ ...options, headless: true });
+  try {
+    const dictionary = parseDictionary(require('cedict-json'));
+    const text = '北美生活必看！超全店铺 APP 盘点，先搜一圈';
+    const data = { id: 1, status: 'ready', text, tokens: lookup(dictionary, text), source: 'selection', preferences: defaults };
+    const page = await browser.newPage({ viewport: { width: 520, height: 650 } });
+    await page.addInitScript(data => { window.hanzi = {
+      result: async () => data, onResult: callback => { window.receiveResult = callback; }
+    }; }, data);
+    await load(page, 'popup.html');
+    await page.locator('#result').waitFor({ state: 'visible' });
+    assert.equal(await page.locator('.definition').count(), data.tokens.filter(token => token.entries.length).length);
+    const row = word => page.locator('.definition').filter({ has: page.locator('.definition-hanzi', { hasText: new RegExp(`^${word}$`) }) });
+    assert.equal(await row('看').count(), 1);
+    assert.equal(await row('全').count(), 1);
+    assert.match(await row('看').innerText(), /kàn/);
+    assert.match(await row('看').innerText(), /to see/);
+    assert.doesNotMatch(await row('全').innerText(), /surname/);
+    assert.doesNotMatch(await page.locator('#characters').innerText(), /APP/);
+    assert.equal(await page.locator('.definition-hanzi').filter({ hasText: /^[AP]$/ }).count(), 0);
+    await page.screenshot({ path: path.resolve(__dirname, '../.cache/popup-dictionary-beta2.png') });
+    // Expanding the primary gloss must not discard alternate pronunciations.
+    await row('看').getByRole('button', { name: 'Show all definitions for 看', exact: true }).click();
+    await row('看').locator('summary').click();
+    assert.match(await row('看').innerText(), /kān/);
+    assert.match(await row('看').innerText(), /to guard/);
+    await row('全').locator('summary').click();
+    assert.match(await row('全').innerText(), /surname Quan/);
+    assert.equal(await page.locator('#translate').count(), 0);
+  } finally { await browser.close(); }
+});
 test('language-pack controls expose progress and popup ignores outdated sentence results', async () => {
   const browser = await chromium.launch({ ...options, headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 900, height: 800 } });
-    const settings = { ...defaults, hasKey: false, dictionaryEntries: 124188, version: '0.3.0-beta.1', shortcutErrors: [], warning: '', localTranslation: { phase: 'missing', installed: false, engine: 'idle' } };
+    const settings = { ...defaults, dictionaryEntries: 124188, version: '0.3.0-beta.1', shortcutErrors: [], warning: '', localTranslation: { phase: 'missing', installed: false, engine: 'idle' } };
     await page.addInitScript(settings => { window.hanzi = {
       settings: async () => settings, onSettings: callback => { window.receiveSettings = callback; },
       installLanguagePack: async () => {

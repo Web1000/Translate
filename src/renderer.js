@@ -34,8 +34,6 @@ function render(value) {
   $('capture-hint').textContent = `Shortcut  ${friendly(value.captureShortcut)}`;
   $('start-capture').disabled = !value.captureEnabled;
   $('dictionary-status').textContent = `${value.dictionaryEntries.toLocaleString()} entries · Simplified and Traditional`;
-  $('key-state').textContent = value.hasKey ? 'A key is saved on this computer.' : 'No API key saved.';
-  $('remove-key').disabled = !value.hasKey;
   $('app-version').textContent = `Version ${value.version}`;
   renderPack(value);
   $('app-status').textContent = value.shortcutErrors.length ? `These shortcuts are in use: ${value.shortcutErrors.map(friendly).join(', ')}. Choose new combinations in Shortcuts.` : value.warning || '';
@@ -76,8 +74,6 @@ for (const name of ['selectionShortcut', 'captureShortcut']) {
 $('save-shortcuts').addEventListener('click', () => save({ selectionShortcut: $('selectionShortcut').value.replace(/\s/g, ''), captureShortcut: $('captureShortcut').value.replace(/\s/g, '') }, 'shortcut-status'));
 $('reset-shortcuts').addEventListener('click', () => { shortcutDraft = { selectionShortcut: 'Control+Shift+D', captureShortcut: 'Control+Shift+S' }; $('selectionShortcut').value = 'Ctrl + Shift + D'; $('captureShortcut').value = 'Ctrl + Shift + S'; $('shortcut-status').textContent = 'Click Save shortcuts to apply.'; });
 $('start-capture').addEventListener('click', () => window.hanzi.capture().catch(error => { $('app-status').textContent = message(error); }));
-$('key-form').addEventListener('submit', async event => { event.preventDefault(); if (!$('api-key').value.trim()) return; try { render(await window.hanzi.saveKey($('api-key').value)); $('api-key').value = ''; $('key-status').textContent = 'Key saved.'; } catch (error) { $('key-status').textContent = message(error); } });
-$('remove-key').addEventListener('click', async () => { try { render(await window.hanzi.saveKey('')); $('api-key').value = ''; $('key-status').textContent = 'Key removed.'; } catch (error) { $('key-status').textContent = message(error); } });
 $('quit-app').addEventListener('click', () => window.hanzi.quit());
 $('install-pack').addEventListener('click', async () => {
   $('install-pack').disabled = true; $('pack-error').textContent = '';
