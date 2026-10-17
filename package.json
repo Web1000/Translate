@@ -1,6 +1,6 @@
 {
   "name": "hanzi-lens",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Chinese-English lookup and screen capture for Windows",
   "private": true,
   "main": "src/main.cjs",

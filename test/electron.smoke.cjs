@@ -17,9 +17,11 @@ test('shortcuts produce only a compact popup; settings, capture, errors and pers
     const settings = await page.evaluate(() => window.hanzi.settings());
     assert.ok(settings.dictionaryEntries > 100000);
     assert.equal(await page.locator('textarea').count(), 0);
-    await application.evaluate(({ app, globalShortcut, screen, BrowserWindow }) => {
+    await application.evaluate(async ({ app, globalShortcut, screen, BrowserWindow, clipboard, ClipboardItem }) => {
       const require = process.getBuiltinModule('node:module').createRequire(`${app.getAppPath()}/package.json`);
-      // Only native selection/shortcut registration and display geometry are substituted.
+      // Use the real Electron clipboard; substitute only the Windows helper process.
+      globalThis.selectionClipboardBackup = await Promise.all((await clipboard.read()).filter(item => item.types.length).map(async item => new ClipboardItem(Object.fromEntries(await Promise.all(item.types.map(async type => [type, await item.getType(type)]))))));
+      await clipboard.write([new ClipboardItem({ 'text/plain': 'previous clipboard', 'text/html': '<b>previous clipboard</b>' })]);
       globalThis.callbacks = new Map();
       globalShortcut.unregisterAll();
       globalShortcut.unregisterAll = () => globalThis.callbacks.clear();
@@ -27,9 +29,13 @@ test('shortcuts produce only a compact popup; settings, capture, errors and pers
       const display = screen.getPrimaryDisplay();
       screen.getDisplayNearestPoint = () => ({ ...display, bounds: { x: 0, y: 0, width: 800, height: 600 }, workArea: { x: 0, y: 0, width: 800, height: 600 }, size: { width: 800, height: 600 }, scaleFactor: 1 });
       const selection = require(`${app.getAppPath()}/src/selection.cjs`);
-      selection.readSelection = async () => {
+      const realReadSelection = selection.readSelection;
+      selection.readSelection = async options => {
         if (BrowserWindow.getAllWindows().some(window => window.isVisible())) throw new Error('A Hanzi Lens window stole the source selection focus.');
-        return '學習中文';
+        return realReadSelection({ ...options, platform: 'win32', execute: async () => {
+          await clipboard.writeText('學習中文');
+          return { stdout: JSON.stringify({ text: '學習中文', usedClipboard: true }) };
+        } });
       };
       require(`${app.getAppPath()}/src/main.cjs`).savePreferences({ selectionEnabled: true, captureEnabled: true });
       BrowserWindow.getAllWindows()[0].hide();
@@ -39,6 +45,17 @@ test('shortcuts produce only a compact popup; settings, capture, errors and pers
     const popup = await opened;
     await popup.waitForFunction(() => document.getElementById('definitions')?.textContent.includes('to learn'));
     assert.match(await popup.locator('#characters').innerText(), /學/);
+    const restoredClipboard = await application.evaluate(async ({ clipboard }) => {
+      const item = (await clipboard.read()).find(item => item.types.includes('text/html'));
+      return { text: await clipboard.readText(), html: item ? await (await item.getType('text/html')).text() : '' };
+    });
+    assert.equal(restoredClipboard.text, 'previous clipboard');
+    assert.match(restoredClipboard.html, /<b>previous clipboard<\/b>/);
+    await application.evaluate(async ({ clipboard }) => {
+      if (globalThis.selectionClipboardBackup.length) await clipboard.write(globalThis.selectionClipboardBackup);
+      else clipboard.clear();
+      delete globalThis.selectionClipboardBackup;
+    });
     assert.equal(await popup.locator('textarea').count(), 0);
     const windows = await application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().map(window => ({ title: window.getTitle(), visible: window.isVisible(), width: window.getBounds().width })));
     assert.equal(windows.find(window => window.title.includes('Settings')).visible, false);
@@ -94,5 +111,13 @@ test('shortcuts produce only a compact popup; settings, capture, errors and pers
     // Settings closes to the background, leaving the process available via its tray.
     await application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].close());
     assert.equal(await application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isVisible()), false);
-  } finally { await application.close(); fs.rmSync(userData, { recursive: true, force: true }); }
+  } finally {
+    try {
+      await application.evaluate(async ({ clipboard }) => {
+        if (!globalThis.selectionClipboardBackup) return;
+        if (globalThis.selectionClipboardBackup.length) await clipboard.write(globalThis.selectionClipboardBackup);
+        else clipboard.clear();
+      });
+    } finally { await application.close(); fs.rmSync(userData, { recursive: true, force: true }); }
+  }
 });

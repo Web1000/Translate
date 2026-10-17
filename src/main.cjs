@@ -1,4 +1,4 @@
-const { app, BrowserWindow, clipboard, desktopCapturer, globalShortcut, ipcMain, screen, safeStorage, Tray, Menu, nativeImage, nativeTheme } = require('electron');
+const { app, BrowserWindow, clipboard, ClipboardItem, desktopCapturer, globalShortcut, ipcMain, screen, safeStorage, Tray, Menu, nativeImage, nativeTheme } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { createOcrWorker } = require('./ocr.cjs');
@@ -62,7 +62,7 @@ async function selectedText() {
   try {
     // Do not open or focus any window until Windows has read the source selection.
     const scriptPath = app.isPackaged ? path.join(dataRoot(), 'copy-selection.ps1') : path.join(__dirname, 'copy-selection.ps1');
-    const text = await selection.readSelection({ clipboard, scriptPath });
+    const text = await selection.readSelection({ clipboard, ClipboardItem, scriptPath });
     await showText(text, 'selection', anchor);
   } catch (error) { await showResult({ status: 'error', source: 'selection', error: error.message }, anchor); }
   finally { selectionBusy = false; }

@@ -1,4 +1,4 @@
-# Hanzi Lens for Windows — 0.2.0
+# Hanzi Lens for Windows — 0.2.1
 
 A background Chinese reading companion with compact lookup popups. Inspired by HanziKey; this is an independent project, not an official Windows port.
 
@@ -10,7 +10,7 @@ Windows app: open [Actions → Windows desktop](https://github.com/Web1000/Trans
 
 ## Try the Windows app
 
-Quit the previous version first (close its window or press Ctrl+C in the terminal that started it). Open `Hanzi Lens 0.2.0.exe` from `dist/`. It is portable and unsigned; no Node.js installation is needed to use the executable.
+Quit the previous version first (close its window or press Ctrl+C in the terminal that started it). Open `Hanzi Lens 0.2.1.exe` from `dist/`. It is portable and unsigned; no Node.js installation is needed to use the executable.
 
 The main window contains **settings only**. Close it when you are done; Hanzi Lens keeps running in the system tray. Reopen Settings from the tray icon, or use its **Quit Hanzi Lens** menu item to stop the app and release its shortcuts.
 
@@ -20,6 +20,10 @@ The main window contains **settings only**. Close it when you are done; Hanzi Le
 - The speaker button uses an installed Chinese speech voice. It is disabled if Windows has no Chinese voice installed.
 
 In Settings you can enable or disable each feature, change its shortcut, toggle tone colors and pinyin, choose text size, and prefer original, Simplified, or Traditional characters. Changes persist between launches. In **Shortcuts**, click the shortcut field, press the new combination, then **Save shortcuts**. Conflicts are reported and the previous settings remain active.
+
+## Fixed in 0.2.1
+
+Selected-text lookup now uses Electron 44's asynchronous `clipboard.read()`, `readText()`, `write()` and `ClipboardItem` APIs. This fixes the `clipboard.readHTML is not a function` error. A regression test now exercises selection reading and text/HTML restoration with the real Electron clipboard, substituting only the Windows helper process.
 
 ## What changed from 0.1
 

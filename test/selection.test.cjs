@@ -3,12 +3,22 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 const { readSelection } = require('../src/selection.cjs');
 const scriptPath = path.resolve(__dirname, '../src/copy-selection.ps1');
+class FixtureItem {
+  constructor(data) { this.data = data; this.types = Object.keys(data); }
+  async getType(type) { return typeof this.data[type] === 'string' ? new Blob([this.data[type]]) : this.data[type]; }
+}
 function fixture() {
-  let text = 'previous clipboard';
+  let items = [new FixtureItem({ 'text/plain': 'previous clipboard', 'text/html': '<b>previous clipboard</b>' })];
   const writes = [];
   return {
-    clipboard: { readText: () => text, readHTML: () => '<b>previous clipboard</b>', readRTF: () => '', readImage: () => ({ isEmpty: () => true }), write: data => { writes.push(data); text = data.text; } },
-    writes, setText: value => { text = value; }
+    ClipboardItem: FixtureItem,
+    clipboard: {
+      read: async () => items,
+      readText: async () => { const item = items.find(item => item.types.includes('text/plain')); return item ? (await item.getType('text/plain')).text() : ''; },
+      write: async data => { assert.ok(Array.isArray(data)); writes.push(data); items = data; },
+      clear: () => { items = []; }
+    },
+    writes, setText: value => { items = [new FixtureItem({ 'text/plain': value })]; }, setEmpty: () => { items = [new FixtureItem({})]; }
   };
 }
 test('accessibility selection preserves Unicode without touching the clipboard', async () => {
@@ -21,11 +31,16 @@ test('accessibility selection preserves Unicode without touching the clipboard',
   } });
   assert.equal(text, '學習中文'); assert.equal(f.writes.length, 0);
 });
-test('copy fallback restores the previous standard clipboard formats', async () => {
+test('async copy fallback restores text and HTML using ClipboardItem payloads', async () => {
   const f = fixture();
   const text = await readSelection({ ...f, scriptPath, platform: 'win32', execute: async () => { f.setText('你好'); return { stdout: JSON.stringify({ text: '你好', usedClipboard: true }) }; } });
-  assert.equal(text, '你好'); assert.equal(f.clipboard.readText(), 'previous clipboard');
-  assert.equal(f.writes[0].html, '<b>previous clipboard</b>');
+  assert.equal(text, '你好'); assert.equal(await f.clipboard.readText(), 'previous clipboard');
+  assert.equal(await (await f.writes[0][0].getType('text/html')).text(), '<b>previous clipboard</b>');
+});
+test('an initially empty clipboard is restored to empty', async () => {
+  const f = fixture(); f.setEmpty();
+  await readSelection({ ...f, scriptPath, platform: 'win32', execute: async () => { f.setText('你好'); return { stdout: JSON.stringify({ text: '你好', usedClipboard: true }) }; } });
+  assert.deepEqual(await f.clipboard.read(), []);
 });
 test('a newer user clipboard change is never overwritten', async () => {
   const f = fixture();

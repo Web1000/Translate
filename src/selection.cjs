@@ -2,10 +2,14 @@ const fs = require('node:fs');
 const { execFile } = require('node:child_process');
 const { promisify } = require('node:util');
 const run = promisify(execFile);
-async function readSelection({ clipboard, scriptPath, platform = process.platform, execute = run }) {
+async function readSelection({ clipboard, ClipboardItem, scriptPath, platform = process.platform, execute = run }) {
   if (platform !== 'win32') throw new Error('Selected-text lookup is available on Windows. Use screen capture on this platform.');
-  const previous = { text: clipboard.readText(), html: clipboard.readHTML(), rtf: clipboard.readRTF(), image: clipboard.readImage() };
-  if (previous.image.isEmpty()) delete previous.image;
+  // Electron 44 uses async ClipboardItems. Materialize every payload before
+  // copying so restoration cannot read from the newly changed clipboard.
+  const previous = await Promise.all((await clipboard.read()).filter(item => item.types.length).map(async item => {
+    const values = await Promise.all(item.types.map(async type => [type, await item.getType(type)]));
+    return new ClipboardItem(Object.fromEntries(values));
+  }));
   // Avoid PowerShell quoting changes in Windows argument parsing.
   const command = Buffer.from(fs.readFileSync(scriptPath, 'utf8'), 'utf16le').toString('base64');
   let response;
@@ -19,7 +23,10 @@ async function readSelection({ clipboard, scriptPath, platform = process.platfor
   let result;
   try { result = JSON.parse(response.stdout.replace(/^\uFEFF/, '').trim()); }
   catch { throw new Error('Windows returned an unreadable selection. Try again, or use screen capture.'); }
-  if (result.usedClipboard && typeof result.text === 'string' && result.text && clipboard.readText() === result.text) clipboard.write(previous);
+  if (result.usedClipboard && typeof result.text === 'string' && result.text && await clipboard.readText() === result.text) {
+    if (previous.length) await clipboard.write(previous);
+    else clipboard.clear();
+  }
   if (result.error) throw new Error(result.error);
   if (typeof result.text !== 'string' || !result.text.trim()) throw new Error('No selected text found. Highlight Chinese text in another app, then press the shortcut. Use screen capture for images or text that cannot be copied.');
   return result.text.slice(0, 10000);
