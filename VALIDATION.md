@@ -1,24 +1,24 @@
-# Offline translation candidate: 0.3.0-beta.1
+# Offline translation beta: 0.3.0-beta.1
 
-Observed in the Linux cloud workspace:
+Verified implementation: `55e3db2`. Later changes record results and add CI diagnostics.
 
-| Check | Result |
+| Check | Observed result |
 | --- | --- |
-| Dictionary, clipboard, preferences, translation text/worker control, pack integrity tests | 24 passed |
-| Settings, popup, language-pack controls, stale results, and crop browser tests | 4 passed |
-| Electron lookup/capture integration and isolated native-runtime import/error handling | Passed |
-| Real OCR → dictionary smoke | Passed |
-| Production dependency audit | 0 known vulnerabilities reported |
-| Native Windows selection tests | Failed in Windows CI; investigating separately |
-| Real model download and four sentence checks | Passed on Windows CI |
-| Windows source / packaged Electron with the real pack | Both passed |
+| Dictionary, clipboard, preferences, translation chunks/controller, pack integrity and license provenance | 24 unit tests passed |
+| Settings, popup, language-pack controls, stale results and crop UI | 4 browser tests passed |
+| Actual OCR → dictionary | Passed in the Linux cloud workspace and Windows workflow |
+| Real Simplified/Traditional CPU translation | Four known sentences passed on Windows |
+| Source Electron with the real language pack | Passed on Windows |
+| Packaged Windows EXE with the real language pack | Passed on Windows |
+| Native Windows selection helper, automatic and clipboard fallback | Both passed in a separate Windows run; an earlier combined run failed |
+| Production dependency audit | 0 known vulnerabilities reported at implementation time |
 
-The unit installer tests use synthetic fixtures and do not establish model quality. The engine-control tests substitute a worker; the Electron integration loads the actual native runtime in an isolated utility process and confirms missing models fail without a main-app crash. Those isolated checks alone do not establish actual translation quality. Separately, Windows CI passed four real-model cases: hello world, Simplified and Traditional “I like learning Chinese,” and a nearest-train-station question.
+[Windows build and real-model integration report](https://github.com/Web1000/Translate/actions/runs/39043906817). Its artifact contains the portable EXE and benchmark JSON. The run failed only at the subsequent native selection step; it is not an all-green run. [Separate native selection run](https://github.com/Web1000/Translate/actions/runs/39044622825) passed both tests against the same selection-helper code. An earlier source Electron check also failed before a rerun passed. These intermittent results remain a reliability limitation; live shortcut, tray and monitor behavior should be checked on the user's Windows desktop.
 
-The Windows workflow downloads and verifies the real pack, runs known Simplified/Traditional translations and timing checks, builds the app, and tests actual offline translation in both source and packaged Electron. Only after those checks pass does it upload the Windows candidate and its benchmark report. Native Windows text-selection checks run afterward. A feature-branch report records individual outcomes and the tested source commit.
+The installer tests use synthetic fixtures; those alone do not establish translation quality. Real-model checks separately translated “Hello, world,” “I like learning Chinese” from both scripts, and a nearest-train-station question. The Electron tests exercise real clipboard APIs and real offline translation; they substitute native selection, shortcut registration, and screenshot sources. Separate native tests exercise the actual PowerShell helper with a selected Windows text control.
 
-Minimum RAM and performance on older PCs are not established. CI measurements apply only to the reported CI machine. No near-instant claim is made for all hardware.
+Windows CPU benchmark: Node 22.23.3, Windows x64, two available CPUs, two inference threads. Latest run: **1,847 ms** to load and warm, **115–315 ms** for the four short sentences, **547 MB** benchmark-process RSS. An earlier run measured 4,906 ms warm-up and 104–244 ms generation. Memory excludes the Electron app's additional overhead. Minimum RAM and performance on older PCs are not established.
 
-Windows CI CPU measurements (Node 22.23.3, two available CPUs, two inference threads): 4,906 ms to load and warm; 104–244 ms for the four short sentences; 538 MB benchmark-process RSS. These exclude the Electron app’s additional memory. Model revision: `39d480d52a9ea3065a1f117adfe4dbc55de10e6f`, source license CC BY 4.0.
+The verified language pack is 119,499,668 bytes. Conversion: `Xenova/opus-mt-zh-en`, revision `39d480d52a9ea3065a1f117adfe4dbc55de10e6f`. Declared source: `Helsinki-NLP/opus-mt-zh-en`, revision `cf109095479db38d6df799875e34039d4938aaa6`, CC BY 4.0. The installer retains attribution and verifies immutable revisions, sizes and checksums. Inference disables remote model access.
 
-Verified Windows build and artifact: https://github.com/Web1000/Translate/actions/runs/39043906817 (source commit `55e3db2`). Both Electron tests exercised the real language pack. The separate native selection check failed after upload; this run is not an all-green release. Latest benchmark: 1,847 ms warm-up, 115–315 ms short sentences, 547 MB benchmark-process RSS, 119,499,668-byte language pack.
+The cloud machine blocks Hugging Face, so the real-model download and Windows checks ran in GitHub Actions. The generated validation branches record tested commits, outcomes and bounded logs; model weights are not stored in Git.

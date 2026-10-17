@@ -21,7 +21,7 @@ The main window contains **settings only**. Close it when you are done; Hanzi Le
 
 In Settings you can enable or disable each feature, change its shortcut, toggle tone colors and pinyin, choose text size, and prefer original, Simplified, or Traditional characters. Changes persist between launches. In **Shortcuts**, click the shortcut field, press the new combination, then **Save shortcuts**. Conflicts are reported and the previous settings remain active.
 
-## Fixed in 0.3.0-beta.1
+## Clipboard fix from 0.2.1
 
 Selected-text lookup now uses Electron 44's asynchronous `clipboard.read()`, `readText()`, `write()` and `ClipboardItem` APIs. This fixes the `clipboard.readHTML is not a function` error. A regression test now exercises selection reading and text/HTML restoration with the real Electron clipboard, substituting only the Windows helper process.
 
@@ -34,6 +34,8 @@ The Windows selection helper first reads the selected range through UI Automatio
 The helper is launched with PowerShell `-EncodedCommand` to preserve command quoting. No PowerShell execution-policy change or administrator launch is required. Elevated apps and apps that block copying may still require screen capture.
 
 ## Offline sentence translation
+
+New in 0.3.0-beta.1: free, CPU-based sentence translation with a separately downloaded language pack (about 120 MB). Real translations passed in both source and packaged Windows Electron. Short test sentences took 115–315 ms after warm-up on the Windows CI machine; see [VALIDATION.md](VALIDATION.md) for measurements and intermittent test limitations.
 
 Open **Settings → Translation → Download language pack**. The one-time download comes from Hugging Face, with an immutable model revision, model license, file sizes, and checksums verified before installation. Download progress and cancellation are available. The pack is stored in the app's user-data folder and survives app updates; it is not bundled in every executable download.
 

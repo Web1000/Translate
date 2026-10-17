@@ -60,8 +60,11 @@ jobs:
             dist/*.exe
             dist/translation-benchmark.json
           if-no-files-found: error
-      - run: npm run test:windows
+      - name: Test native Windows text selection
         id: native
+        run: |
+          npm run test:windows 2>&1 | Tee-Object -FilePath .cache/native-selection.log
+          exit $LASTEXITCODE
       - name: Record feature-branch validation results
         if: always() && github.event_name == 'push' && github.ref == 'refs/heads/offline-translation'
         env:
@@ -87,7 +90,7 @@ jobs:
             $report.benchmark = Get-Content .cache/translation-benchmark.json -Raw | ConvertFrom-Json
           }
           $json = $report | ConvertTo-Json -Depth 12
-          foreach ($name in @('offline-translation', 'electron-translation', 'packaged-translation')) {
+          foreach ($name in @('offline-translation', 'electron-translation', 'packaged-translation', 'native-selection')) {
             $file = ".cache/$name.log"
             if (Test-Path $file) {
               $text = Get-Content $file -Raw
