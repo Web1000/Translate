@@ -69,7 +69,13 @@ test('shortcuts produce only a compact popup; settings, capture, errors and pers
     if (process.env.ELECTRON_TEST_LANGUAGE_PACK) {
       await page.waitForFunction(async () => (await window.hanzi.settings()).localTranslation.installed, null, { timeout: 30000 });
       await page.evaluate(() => window.hanzi.saveSettings({ offlineTranslationEnabled: true }));
-      await popup.waitForFunction(() => /Chinese/i.test(document.getElementById('translation').textContent), null, { timeout: 60000 });
+      try {
+        await popup.waitForFunction(() => /Chinese/i.test(document.getElementById('translation').textContent), null, { timeout: 60000 });
+      } catch (error) {
+        console.error('Offline popup diagnostic:', await popup.evaluate(() => ({ text: document.getElementById('translation').textContent, status: document.getElementById('sentence-status').textContent })));
+        console.error('Offline engine diagnostic:', await page.evaluate(async () => (await window.hanzi.settings()).localTranslation));
+        throw error;
+      }
       assert.match(await popup.locator('#sentence-status').innerText(), /On-device/);
     }
     await application.evaluate(async ({ clipboard }) => {

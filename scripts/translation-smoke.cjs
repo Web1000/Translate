@@ -29,7 +29,7 @@ const { LocalTranslator } = require('../src/local-translator.cjs');
     assert.match(results[1].text, /Chinese/i); assert.equal(results[1].text, results[2].text);
     assert.match(results[3].text, /station/i);
     const manifest = JSON.parse(await fs.readFile(path.join(pack.root, 'pack.json'), 'utf8'));
-    const report = { model: manifest.model, modelRevision: manifest.revision, modelLicense: manifest.license, runtime: process.version, platform: process.platform, arch: process.arch, availableCpus: os.availableParallelism(), cpuThreads: 2, modelLoadAndWarmMs: loadMs, processRssMB: Math.round(process.memoryUsage().rss / 1024 / 1024), results };
+    const report = { model: manifest.model, modelRevision: manifest.revision, modelLicense: manifest.license, licenseSource: manifest.licenseSource, packBytes: manifest.files.reduce((sum, file) => sum + file.size, 0), runtime: process.version, platform: process.platform, arch: process.arch, availableCpus: os.availableParallelism(), cpuThreads: 2, modelLoadAndWarmMs: loadMs, processRssMB: Math.round(process.memoryUsage().rss / 1024 / 1024), results };
     const reportPath = path.resolve(__dirname, '../.cache/translation-benchmark.json'); await fs.mkdir(path.dirname(reportPath), { recursive: true }); await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
     console.log(JSON.stringify(report, null, 2));
   } finally { await engine.stop(); }

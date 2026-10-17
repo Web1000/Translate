@@ -36,7 +36,9 @@ jobs:
       - run: npm run test:ocr
       - name: Test real offline translations in Electron
         id: electron
-        run: npm run test:electron
+        run: |
+          npm run test:electron 2>&1 | Tee-Object -FilePath .cache/electron-translation.log
+          exit $LASTEXITCODE
         env:
           ELECTRON_TEST_LANGUAGE_PACK: ${{ github.workspace }}/.cache/language-packs/opus-zh-en-q8-v1
       - name: Test the packaged Windows app with the real language pack
@@ -85,7 +87,7 @@ jobs:
             $report.benchmark = Get-Content .cache/translation-benchmark.json -Raw | ConvertFrom-Json
           }
           $json = $report | ConvertTo-Json -Depth 12
-          foreach ($name in @('offline-translation', 'packaged-translation')) {
+          foreach ($name in @('offline-translation', 'electron-translation', 'packaged-translation')) {
             $file = ".cache/$name.log"
             if (Test-Path $file) {
               $text = Get-Content $file -Raw
