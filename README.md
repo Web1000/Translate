@@ -6,7 +6,7 @@ A background Chinese reading companion with compact lookup popups. Inspired by H
 
 Source: open [Web1000/Translate](https://github.com/Web1000/Translate), then **Code → Download ZIP**. Source downloads need the setup commands below; they do not include the compiled app or downloaded OCR models.
 
-Windows app: open [Actions → Windows desktop](https://github.com/Web1000/Translate/actions/workflows/windows.yml), choose the latest run for `main`, and download **Hanzi-Lens-Windows-x64** under **Artifacts**. Sign in to GitHub if prompted. Extract the artifact ZIP, quit any older copy, and launch the EXE. The artifact appears after the **Upload Windows download** step completes. Windows-specific tests run afterward; check their results separately, as an uploaded build alone does not establish that those tests passed.
+Windows app: open [Actions → Windows desktop](https://github.com/Web1000/Translate/actions/workflows/windows.yml), choose the latest run for `main`, and download **Hanzi-Lens-Windows-x64** under **Artifacts**. Sign in to GitHub if prompted. Extract the artifact ZIP, quit any older copy, and launch the EXE. Use a run with a green **Success** result. The **Upload Windows download** step now runs only after every required check, including native Windows selection, passes.
 
 ## Try the Windows app
 
@@ -35,7 +35,7 @@ The helper is launched with PowerShell `-EncodedCommand` to preserve command quo
 
 ## Offline sentence translation
 
-New in 0.3.0-beta.1: free, CPU-based sentence translation with a separately downloaded language pack (about 120 MB). Real translations passed in both source and packaged Windows Electron. Short test sentences took 115–315 ms after warm-up on the Windows CI machine; see [VALIDATION.md](VALIDATION.md) for measurements and intermittent test limitations.
+New in 0.3.0-beta.1: free, CPU-based sentence translation with a separately downloaded language pack (about 120 MB). Real translations passed in both source and packaged Windows Electron. Short test sentences took 115–315 ms after warm-up on the Windows CI machine; see [VALIDATION.md](VALIDATION.md) for measurements and validation history.
 
 Open **Settings → Translation → Download language pack**. The one-time download comes from Hugging Face, with an immutable model revision, model license, file sizes, and checksums verified before installation. Download progress and cancellation are available. The pack is stored in the app's user-data folder and survives app updates; it is not bundled in every executable download.
 

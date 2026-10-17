@@ -22,3 +22,11 @@ Windows CPU benchmark: Node 22.23.3, Windows x64, two available CPUs, two infere
 The verified language pack is 119,499,668 bytes. Conversion: `Xenova/opus-mt-zh-en`, revision `39d480d52a9ea3065a1f117adfe4dbc55de10e6f`. Declared source: `Helsinki-NLP/opus-mt-zh-en`, revision `cf109095479db38d6df799875e34039d4938aaa6`, CC BY 4.0. The installer retains attribution and verifies immutable revisions, sizes and checksums. Inference disables remote model access.
 
 The cloud machine blocks Hugging Face, so the real-model download and Windows checks ran in GitHub Actions. The generated validation branches record tested commits, outcomes and bounded logs; model weights are not stored in Git.
+
+## CI failure investigation
+
+The seven failed desktop runs before the correction comprised four Escape/CDP target-closure races, two earlier model-license verification failures, and one native fixture timeout at 22 seconds. Historical runs remain failed; separate passing tests did not make those runs successful.
+
+The capture test now sends the native Escape event from Electron's surviving main process and still requires the capture window to close and all app windows to remain hidden. It no longer awaits a CDP reply from the renderer that Escape destroys. The native fixture retains its internal 15-second helper deadline; the outer process budget is 40 seconds to include cold Windows/PowerShell startup and cleanup. The production selection helper timeout is unchanged.
+
+The download upload now follows all required tests. There are no automatic test retries or ignored failures. Current results must be read from a complete successful Windows workflow run, not inferred from separate passing reruns. Generated reports record the exact source commit for both main and the feature branch.
