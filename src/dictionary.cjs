@@ -1,3 +1,12 @@
+const HAN = /\p{Script=Han}/u;
+const REFERENCE = /^(?:surname\b|variant of\b|old variant of\b|see\b|CL:)/i;
+function entryPriority(entry) {
+  const glosses = entry.definitions.filter(definition => !REFERENCE.test(definition));
+  // Dictionary ordering is not frequency ordering: surnames and variants can
+  // precede ordinary words. This is a default, not contextual disambiguation.
+  const marked = glosses.every(definition => /\b(?:archaic|obsolete|dialect)\b/i.test(definition));
+  return (glosses.length ? 0 : 1000) + (marked ? 100 : 0) - Math.min(glosses.length, 50);
+}
 function parseDictionary(text) {
   const index = new Map();
   let maxLength = 1;
@@ -19,6 +28,16 @@ function parseDictionary(text) {
       index.get(word).push(entry);
     }
   }
+  for (const [word, entries] of index) {
+    const merged = new Map();
+    for (const entry of entries) {
+      const key = JSON.stringify([entry.traditional, entry.simplified, entry.pinyin]);
+      const previous = merged.get(key);
+      if (previous) previous.definitions = [...new Set([...previous.definitions, ...entry.definitions])];
+      else merged.set(key, { ...entry, definitions: [...new Set(entry.definitions)] });
+    }
+    index.set(word, [...merged.values()].sort((a, b) => entryPriority(a) - entryPriority(b)));
+  }
   return { index, maxLength, count };
 }
 function lookup(dictionary, text) {
@@ -29,7 +48,7 @@ function lookup(dictionary, text) {
     for (let size = Math.min(dictionary.maxLength, text.length - offset); size > 0; size--) {
       const word = text.slice(offset, offset + size);
       const entries = dictionary.index.get(word);
-      if (entries) { found = { word, entries }; break; }
+      if (entries && HAN.test(word)) { found = { word, entries }; break; }
     }
     if (found) { tokens.push(found); offset += found.word.length; }
     else {

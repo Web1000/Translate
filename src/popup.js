@@ -1,5 +1,5 @@
 const $ = id => document.getElementById(id);
-let current, translating = false;
+let current;
 function node(tag, className, text) { const result = document.createElement(tag); if (className) result.className = className; if (text !== undefined) result.textContent = text; return result; }
 function message(error) { return String(error?.message || error).replace(/^Error invoking remote method '[^']+': Error: /, ''); }
 function displayWord(token, entry, preference) { return preference === 'original' ? token.word : entry[preference]; }
@@ -19,7 +19,7 @@ function updateSpeech() { $('speak').disabled = !voices().length; $('speak').tit
 function render(data) {
   if (current && data.id < current.id) return;
   const changed = !current || current.id !== data.id;
-  if (changed) { window.speechSynthesis?.cancel(); translating = false; $('action-status').textContent = ''; }
+  if (changed) { window.speechSynthesis?.cancel(); $('action-status').textContent = ''; }
   current = data;
   const prefs = data.preferences;
   document.body.className = `size-${prefs.fontSize}${prefs.toneColors ? '' : ' no-tones'}${prefs.showPinyin ? '' : ' no-pinyin'}`;
@@ -32,8 +32,9 @@ function render(data) {
   let matches = 0;
   for (const token of data.tokens) {
     if (!token.entries.length) {
-      $('characters').append(node('span', 'raw-text', token.word));
-      if (/\p{Script=Han}/u.test(token.word)) $('definitions').append(node('div', 'unknown', `${token.word} — not in the dictionary`));
+      const visible = token.word.replace(/\p{Script=Latin}+/gu, '');
+      if (visible.trim()) $('characters').append(node('span', 'raw-text', visible));
+      if (/\p{Script=Han}/u.test(token.word)) $('definitions').append(node('div', 'unknown', `${visible} — not in the dictionary`));
       continue;
     }
     matches++;
@@ -49,16 +50,28 @@ function render(data) {
       });
     } else { reading.append(node('span', 'hanzi', word), pronunciation(first.pinyin, 'pronunciation')); }
     $('characters').append(reading);
-    for (const entry of token.entries) {
+    for (const entry of token.entries.slice(0, 1)) {
       const row = node('div', 'definition');
       const term = node('div', 'definition-term');
       term.append(coloredWord(displayWord(token, entry, prefs.chineseStyle), entry.pinyin, 'definition-hanzi'), pronunciation(entry.pinyin, 'definition-pinyin'));
-      const meaning = node('div', 'meaning', entry.definitions.slice(0, 3).join('; '));
+      const meaning = node('div', 'meaning');
+      const gloss = node('span', 'gloss', entry.definitions.slice(0, 3).join('; '));
+      meaning.append(gloss);
       if (entry.definitions.length > 3) {
         const more = node('button', 'more', `+${entry.definitions.length - 3}`);
         more.setAttribute('aria-label', `Show all definitions for ${token.word}`);
-        more.addEventListener('click', () => { meaning.textContent = entry.definitions.join('; '); });
+        more.addEventListener('click', () => { gloss.textContent = entry.definitions.join('; '); more.remove(); });
         meaning.append(more);
+      }
+      if (token.entries.length > 1) {
+        const alternatives = node('details', 'alternatives');
+        alternatives.append(node('summary', '', `Other readings (${token.entries.length - 1})`));
+        for (const other of token.entries.slice(1)) {
+          const alternative = node('div', 'alternative');
+          alternative.append(pronunciation(other.pinyin, 'definition-pinyin'), node('span', '', other.definitions.join('; ')));
+          alternatives.append(alternative);
+        }
+        meaning.append(alternatives);
       }
       row.append(term, meaning);
       $('definitions').append(row);
@@ -67,14 +80,10 @@ function render(data) {
   $('translation').textContent = data.translation || '';
   $('translation').hidden = !data.translation;
   const local = data.localTranslation || { installed: false, engine: 'idle' };
-  $('sentence-status').textContent = data.translationStatus === 'loading' ? local.engine === 'loading' && data.translationSource === 'offline' ? 'Loading offline translation…' : 'Translating…' : data.translationStatus === 'error' ? data.translationError : data.translation ? data.translationSource === 'offline' ? 'On-device translation' : 'Online translation' : '';
+  $('sentence-status').textContent = data.translationStatus === 'loading' ? local.engine === 'loading' && data.translationSource === 'offline' ? 'Loading offline translation…' : 'Translating…' : data.translationStatus === 'error' ? data.translationError : data.translation ? 'On-device translation' : '';
   $('translation-settings').hidden = Boolean(local.installed && prefs.offlineTranslationEnabled);
   $('offline-retry').hidden = !(local.installed && prefs.offlineTranslationEnabled && data.translationStatus === 'error');
-  $('lookup-note').textContent = matches ? '' : 'No dictionary matches.';
-  $('translate').hidden = !data.hasKey;
-  $('translate').disabled = translating;
-  $('translate').textContent = translating ? 'Translating…' : 'Translate online';
-  $('translate').title = 'Send this text to OpenAI for English translation';
+  $('lookup-note').textContent = matches ? 'Dictionary meanings' : 'No dictionary matches.';
   updateSpeech();
 }
 $('close').addEventListener('click', () => { window.speechSynthesis?.cancel(); window.hanzi.closePopup(); });
@@ -83,12 +92,6 @@ $('translation-settings').addEventListener('click', () => window.hanzi.showSetti
 $('offline-retry').addEventListener('click', () => window.hanzi.offlineTranslate(current.id).catch(error => { $('action-status').textContent = message(error); }));
 $('retry-capture').addEventListener('click', () => window.hanzi.capture().catch(error => { $('message').textContent = message(error); }));
 window.addEventListener('keydown', event => { if (event.key === 'Escape') { window.speechSynthesis?.cancel(); window.hanzi.closePopup(); } });
-$('translate').addEventListener('click', async () => {
-  const id = current.id; translating = true; $('translate').disabled = true; $('translate').textContent = 'Translating…'; $('action-status').textContent = '';
-  try { await window.hanzi.translate(id); }
-  catch (error) { if (current.id === id) $('action-status').textContent = message(error); }
-  finally { if (current.id === id) { translating = false; $('translate').disabled = false; $('translate').textContent = 'Translate online'; } }
-});
 $('speak').addEventListener('click', () => {
   const available = voices(); if (!available.length) return;
   window.speechSynthesis.cancel();

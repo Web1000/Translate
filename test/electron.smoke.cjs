@@ -6,6 +6,7 @@ const os = require('node:os');
 const { _electron: electron } = require('playwright');
 test('shortcuts produce only a compact popup; settings, capture, errors and persistence work', { timeout: 90000 }, async () => {
   const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'hanzi-lens-test-'));
+  fs.writeFileSync(path.join(userData, 'translation-key'), 'obsolete-test-key');
   if (process.env.ELECTRON_TEST_LANGUAGE_PACK) {
     fs.mkdirSync(path.join(userData, 'translation-packs'), { recursive: true });
     fs.cpSync(process.env.ELECTRON_TEST_LANGUAGE_PACK, path.join(userData, 'translation-packs/opus-zh-en-q8-v1'), { recursive: true });
@@ -18,9 +19,12 @@ test('shortcuts produce only a compact popup; settings, capture, errors and pers
   try {
     const page = await application.firstWindow();
     await page.waitForLoadState('domcontentloaded');
+    assert.equal(fs.existsSync(path.join(userData, 'translation-key')), false);
     const settings = await page.evaluate(() => window.hanzi.settings());
     assert.ok(settings.dictionaryEntries > 100000);
     assert.equal(await page.locator('textarea').count(), 0);
+    assert.equal(await page.locator('#api-key, #key-form').count(), 0);
+    assert.deepEqual(await page.evaluate(() => [typeof window.hanzi.saveKey, typeof window.hanzi.translate]), ['undefined', 'undefined']);
     const isolatedEngine = await application.evaluate(async ({ app }) => {
       const require = process.getBuiltinModule('node:module').createRequire(`${app.getAppPath()}/package.json`);
       const { LocalTranslator } = require(`${app.getAppPath()}/src/local-translator.cjs`);

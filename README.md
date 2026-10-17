@@ -1,4 +1,4 @@
-# Hanzi Lens for Windows — 0.3.0-beta.1
+# Hanzi Lens for Windows — 0.3.0-beta.2
 
 A background Chinese reading companion with compact lookup popups. Inspired by HanziKey; this is an independent project, not an official Windows port.
 
@@ -10,7 +10,7 @@ Windows app: open [Actions → Windows desktop](https://github.com/Web1000/Trans
 
 ## Try the Windows app
 
-Quit the previous version first (close its window or press Ctrl+C in the terminal that started it). Open `Hanzi Lens 0.3.0-beta.1.exe` from `dist/`. It is portable and unsigned; no Node.js installation is needed to use the executable.
+Quit the previous version first (close its window or press Ctrl+C in the terminal that started it). Open `Hanzi Lens 0.3.0-beta.2.exe` from `dist/`. It is portable and unsigned; no Node.js installation is needed to use the executable.
 
 The main window contains **settings only**. Close it when you are done; Hanzi Lens keeps running in the system tray. Reopen Settings from the tray icon, or use its **Quit Hanzi Lens** menu item to stop the app and release its shortcuts.
 
@@ -35,7 +35,7 @@ The helper is launched with PowerShell `-EncodedCommand` to preserve command quo
 
 ## Offline sentence translation
 
-New in 0.3.0-beta.1: free, CPU-based sentence translation with a separately downloaded language pack (about 120 MB). Real translations passed in both source and packaged Windows Electron. Short test sentences took 115–315 ms after warm-up on the Windows CI machine; see [VALIDATION.md](VALIDATION.md) for measurements and validation history.
+New in 0.3.0-beta.2: free, CPU-based sentence translation with a separately downloaded language pack (about 120 MB). Real translations passed in both source and packaged Windows Electron. Short test sentences took 115–315 ms after warm-up on the Windows CI machine; see [VALIDATION.md](VALIDATION.md) for measurements and validation history.
 
 Open **Settings → Translation → Download language pack**. The one-time download comes from Hugging Face, with an immutable model revision, model license, file sizes, and checksums verified before installation. Download progress and cancellation are available. The pack is stored in the app's user-data folder and survives app updates; it is not bundled in every executable download.
 
@@ -49,7 +49,7 @@ Inputs over 2,000 characters are rejected with a clear popup message rather than
 
 Performance depends on CPU and RAM. There is no near-instant guarantee for all PCs, no established minimum RAM yet, and no claim that older hardware has been benchmarked. The included real-model smoke test measures loading, generation latency, and benchmark-process memory. Check `translation-benchmark.json` in a validated Windows artifact for measured results on the CI machine, not your own PC.
 
-The online OpenAI option is retained as a manual alternative. It never runs as an automatic fallback for a failed local translation. It sends text only when you explicitly choose **Translate online** in the popup.
+All translation is free and local. The paid online translation option, API-key controls, and network request handler have been removed. Any encrypted key file left by an older version is removed at startup.
 
 Hover lookup and automatic subtitle rescanning are not implemented.
 
@@ -111,6 +111,6 @@ Build the Windows release on Windows or through the included Windows GitHub Acti
 
 Dictionary, OCR, and offline sentence translation are local; no accounts or analytics. Screenshots are held in memory, not saved by the app. Selected-text lookup uses accessibility first; the copy fallback attempts to restore standard text/HTML/RTF/image clipboard formats when the clipboard has not changed again. Application-specific clipboard formats may not survive. Prefer capture if you need to keep such formats intact.
 
-Dictionary segmentation uses longest matching words, not contextual language parsing. Polyphonic words can have several pronunciations, and tone colors reflect dictionary tones. OCR quality depends on size, contrast, and layout. Protected video may capture as black.
+Dictionary segmentation uses longest matching Chinese words, not contextual language parsing. Standalone Latin text such as APP is excluded from the word breakdown, while the original text remains available to sentence translation. Each Chinese token has one visible row. Exact duplicate entries are merged; ordinary entries are preferred over surname/variant references, with broader unmarked entries first when several readings remain. Other readings are expandable. This default ordering is a heuristic, not contextual sense selection: it can still choose the wrong reading or meaning. Tone colors reflect the displayed reading. OCR quality depends on size, contrast, and layout. Protected video may capture as black.
 
-Settings and the encrypted translation key live in Electron's user-data folder, outside the source folder. There are no keys in the downloadable source. Data attribution and licenses: [resources/NOTICE.md](resources/NOTICE.md).
+Settings and the downloaded language pack live in Electron's user-data folder, outside the source folder. No API key is needed. Data attribution and licenses: [resources/NOTICE.md](resources/NOTICE.md).

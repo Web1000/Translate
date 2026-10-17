@@ -15,6 +15,32 @@ test('longest match supports simplified and traditional without losing punctuati
 test('polyphonic entries preserved, identical character forms not duplicated', () => {
   assert.equal(lookup(parseDictionary(fixture), '行')[0].entries.length, 2);
 });
+test('English letter entries are not looked up or split inside English words', () => {
+  const dictionary = parseDictionary(`${fixture}\nA A [A] /to steal/\nP P [P] /to photoshop/`);
+  const tokens = lookup(dictionary, '学习 APP + A P');
+  assert.equal(tokens.filter(token => token.entries.length).length, 1);
+  assert.equal(tokens.map(token => token.word).join(''), '学习 APP + A P');
+});
+test('duplicate entries merge glosses without dropping other pronunciations', () => {
+  const dictionary = parseDictionary(`${fixture}\n行 行 [xing2] /to walk/to go/`);
+  const entries = lookup(dictionary, '行')[0].entries;
+  assert.equal(entries.length, 2);
+  assert.deepEqual(entries.find(entry => entry.pinyin === 'xing2').definitions, ['to walk', 'to go']);
+  assert.ok(entries.some(entry => entry.pinyin === 'hang2'));
+});
+test('screenshot example defaults to ordinary readings and retains surname alternatives', () => {
+  const dictionary = parseDictionary(require('cedict-json'));
+  for (const text of ['北美生活必看！超全店铺 APP 盘点', '北美生活必看！超全店鋪 APP 盤點']) {
+    const tokens = lookup(dictionary, text);
+    assert.equal(tokens.find(token => token.word === '看').entries[0].pinyin, 'kan4');
+    const all = tokens.find(token => token.word === '全');
+    assert.equal(all.entries[0].pinyin, 'quan2');
+    assert.ok(all.entries[0].definitions.includes('all'));
+    assert.ok(all.entries.some(entry => entry.definitions.includes('surname Quan')));
+    assert.equal(tokens.some(token => /^[A-Z]+$/.test(token.word) && token.entries.length), false);
+    assert.equal(tokens.map(token => token.word).join(''), text);
+  }
+});
 test('unknown supplementary Unicode characters survive segmentation', () => {
   const text = '🙂𠀀abc';
   assert.deepEqual(lookup(parseDictionary(fixture), text), [{ word: text, entries: [] }]);

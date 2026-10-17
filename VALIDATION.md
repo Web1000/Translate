@@ -1,3 +1,13 @@
+# Dictionary popup beta: 0.3.0-beta.2
+
+The dictionary breakdown now renders one row per Chinese token. Exact duplicate entries merge without losing glosses; ordinary dictionary entries precede surname/variant references. Other readings remain available in an expandable control. Standalone Latin strings (including APP and dictionary slang entries A/P) are excluded from lookup, and Latin text is omitted from the reading strip. Original input remains intact for offline sentence translation. Entry ordering is a heuristic, not contextual disambiguation.
+
+Paid online translation, API-key settings, preload methods and main-process handlers have been removed. Startup removes the old encrypted key file. Sentence translation uses the existing local model.
+
+Observed local checks: 24 unit tests, 5 browser integration tests, and the source Electron smoke passed. The regression cases cover the screenshot passage in Simplified and Traditional Chinese, kàn and ordinary 全 defaults, retained alternate readings, merged duplicates, preserved original text, and removal of paid controls. Electron checks verify legacy-key cleanup and absence of the paid preload methods. The Windows workflow must pass real CPU translation, source and packaged Electron, and native selection before uploading a download. Check its exact commit and outcome before claiming Windows readiness.
+
+## Previous validation
+
 # Offline translation beta: 0.3.0-beta.1
 
 Verified implementation: `55e3db2`. Later changes record results and add CI diagnostics.
