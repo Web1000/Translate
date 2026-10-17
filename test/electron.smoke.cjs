@@ -124,9 +124,14 @@ test('shortcuts produce only a compact popup; settings, capture, errors and pers
     const canceled = await cancelOpened;
     await canceled.waitForLoadState('domcontentloaded');
     const closed = canceled.waitForEvent('close');
-    await canceled.keyboard.down('Escape');
+    // Escape destroys the capture renderer synchronously. Send the native key
+    // through the surviving main process so CDP does not lose its reply target.
+    await application.evaluate(({ BrowserWindow }) => {
+      const capture = BrowserWindow.getAllWindows().find(window => window.webContents.getURL().endsWith('/capture.html'));
+      if (!capture) throw new Error('Capture window was not open before Escape.');
+      capture.webContents.sendInputEvent({ type: 'keyDown', keyCode: 'Escape' });
+    });
     await closed;
-    await page.keyboard.up('Escape');
     assert.equal(await application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().filter(window => window.isVisible()).length), 0);
     await page.evaluate(() => window.hanzi.saveSettings({ selectionEnabled: false, captureEnabled: false, selectionShortcut: 'Control+Alt+L', fontSize: 'large', offlineTranslationEnabled: false }));
     assert.equal(await application.evaluate(() => globalThis.callbacks.size), 0);

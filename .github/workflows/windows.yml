@@ -49,6 +49,11 @@ jobs:
         env:
           ELECTRON_TEST_LANGUAGE_PACK: ${{ github.workspace }}/.cache/language-packs/opus-zh-en-q8-v1
           ELECTRON_APP_PATH: ${{ github.workspace }}/dist/win-unpacked/Hanzi Lens.exe
+      - name: Test native Windows text selection
+        id: native
+        run: |
+          npm run test:windows 2>&1 | Tee-Object -FilePath .cache/native-selection.log
+          exit $LASTEXITCODE
       - name: Include the CPU benchmark report
         run: Copy-Item .cache/translation-benchmark.json dist/translation-benchmark.json
       - name: Upload Windows download
@@ -60,11 +65,6 @@ jobs:
             dist/*.exe
             dist/translation-benchmark.json
           if-no-files-found: error
-      - name: Test native Windows text selection
-        id: native
-        run: |
-          npm run test:windows 2>&1 | Tee-Object -FilePath .cache/native-selection.log
-          exit $LASTEXITCODE
       - name: Record feature-branch validation results
         if: always() && github.event_name == 'push' && github.ref == 'refs/heads/offline-translation'
         env:
