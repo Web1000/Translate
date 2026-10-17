@@ -6,10 +6,12 @@ const { execFile } = require('node:child_process');
 const { promisify } = require('node:util');
 const { EventEmitter } = require('node:events');
 const run = promisify(execFile);
-const MODEL = Object.freeze({ id: 'Xenova/opus-mt-zh-en', packId: 'opus-zh-en-q8-v1', label: 'Chinese → English · OPUS-MT int8', license: 'apache-2.0' });
+const MODEL = Object.freeze({ id: 'Xenova/opus-mt-zh-en', packId: 'opus-zh-en-q8-v1', label: 'Chinese → English · OPUS-MT int8' });
+const SOURCE_MODEL = 'Helsinki-NLP/opus-mt-zh-en';
+const LICENSES = new Set(['apache-2.0', 'cc-by-4.0']);
 const REQUIRED = ['config.json', 'tokenizer.json', 'tokenizer_config.json', 'onnx/encoder_model_quantized.onnx', 'onnx/decoder_model_merged_quantized.onnx', 'README.md'];
 const OPTIONAL = ['generation_config.json', 'special_tokens_map.json', 'LICENSE', 'LICENSE.txt'];
-const ALLOWED = new Set([...REQUIRED, ...OPTIONAL]);
+const ALLOWED = new Set([...REQUIRED, ...OPTIONAL, 'SOURCE-README.md']);
 const MAX_BYTES = 400 * 1024 * 1024;
 const CURL = ['--fail', '--location', '--silent', '--show-error', '--proto', '=https', '--proto-redir', '=https', '--connect-timeout', '20', '--max-time', '600', '--retry', '2'];
 async function defaultJson(url, signal) {
@@ -25,27 +27,43 @@ async function digest(filename, algorithm, gitBlob = false) {
   for await (const chunk of fs.createReadStream(filename)) hash.update(chunk);
   return hash.digest('hex');
 }
-function describeFiles(metadata) {
+function licenseInfo(metadata, source) {
+  const declared = metadata.cardData?.license;
+  if (declared) {
+    if (!LICENSES.has(declared)) throw new Error(`Unsupported model license: ${JSON.stringify(declared)}.`);
+    return { license: declared, repository: MODEL.id, revision: metadata.sha };
+  }
+  if (metadata.cardData?.base_model !== SOURCE_MODEL || source?.id !== SOURCE_MODEL || !/^[a-f0-9]{40}$/.test(source?.sha || '') || !LICENSES.has(source?.cardData?.license)) throw new Error(`The source model license could not be verified (reported: ${JSON.stringify(source?.cardData?.license ?? null)}).`);
+  return { license: source.cardData.license, repository: SOURCE_MODEL, revision: source.sha };
+}
+function describeFiles(metadata, source) {
   if (!/^[a-f0-9]{40}$/.test(metadata.sha || '')) throw new Error('The model host did not provide an immutable revision.');
-  if (metadata.cardData?.license !== MODEL.license) throw new Error(`The language pack license could not be verified as Apache 2.0 (reported: ${JSON.stringify(metadata.cardData?.license ?? null)}).`);
+  const provenance = licenseInfo(metadata, source);
   const siblings = new Map((metadata.siblings || []).map(file => [file.rfilename, file]));
   for (const name of REQUIRED) if (!siblings.has(name)) throw new Error(`The language pack is missing ${name}.`);
-  const files = [...ALLOWED].filter(name => siblings.has(name)).map(name => {
-    const file = siblings.get(name), lfs = file.lfs;
+  const descriptions = [...ALLOWED].filter(name => name !== 'SOURCE-README.md' && siblings.has(name)).map(name => ({ name, file: siblings.get(name) }));
+  if (provenance.repository === SOURCE_MODEL) {
+    const readme = source.siblings?.find(file => file.rfilename === 'README.md');
+    if (!readme) throw new Error('The source model attribution file is missing.');
+    descriptions.push({ name: 'SOURCE-README.md', file: readme, repository: SOURCE_MODEL, revision: source.sha, remoteName: 'README.md' });
+  }
+  const files = descriptions.map(({ name, file, repository, revision, remoteName }) => {
+    const lfs = file.lfs;
     const algorithm = lfs ? 'sha256' : 'sha1';
     const hash = lfs?.sha256 || file.blobId;
     const size = lfs?.size || file.size;
     if (!Number.isSafeInteger(size) || size <= 0 || size > MAX_BYTES || !(algorithm === 'sha256' ? /^[a-f0-9]{64}$/ : /^[a-f0-9]{40}$/).test(hash || '')) throw new Error(`The host did not supply a checksum and size for ${name}.`);
-    return { name, size, hash, algorithm, gitBlob: !lfs };
+    return { name, size, hash, algorithm, gitBlob: !lfs, ...(repository ? { repository, revision, remoteName } : {}) };
   });
   if (files.reduce((sum, file) => sum + file.size, 0) > MAX_BYTES) throw new Error('Unexpectedly large language pack. Download stopped.');
   return files;
 }
 async function verifyPack(root) {
   const manifest = JSON.parse(await fsp.readFile(path.join(root, 'pack.json'), 'utf8'));
-  if (manifest.model !== MODEL.id || manifest.packId !== MODEL.packId || manifest.license !== MODEL.license || !/^[a-f0-9]{40}$/.test(manifest.revision || '') || !Array.isArray(manifest.files)) throw new Error('Unrecognized language pack.');
+  if (manifest.model !== MODEL.id || manifest.packId !== MODEL.packId || !LICENSES.has(manifest.license) || !/^[a-f0-9]{40}$/.test(manifest.revision || '') || !Array.isArray(manifest.files)) throw new Error('Unrecognized language pack.');
   const names = new Set(manifest.files.map(file => file.name));
   if (names.size !== manifest.files.length || REQUIRED.some(name => !names.has(name))) throw new Error('Incomplete language pack.');
+  if (manifest.licenseSource?.repository === SOURCE_MODEL && !names.has('SOURCE-README.md')) throw new Error('Source model attribution is missing.');
   for (const file of manifest.files) {
     if (!ALLOWED.has(file.name) || !['sha1', 'sha256'].includes(file.algorithm) || !Number.isSafeInteger(file.size) || file.size <= 0 || file.size > MAX_BYTES) throw new Error('Invalid language pack manifest.');
     const filename = path.join(root, file.name);
@@ -77,7 +95,13 @@ class ModelPack extends EventEmitter {
     try {
       const metadata = await this.json(`https://huggingface.co/api/models/${MODEL.id}?blobs=true`, signal);
       this.metadata = metadata;
-      const files = describeFiles(metadata), totalBytes = files.reduce((sum, file) => sum + file.size, 0);
+      let source;
+      if (!metadata.cardData?.license && metadata.cardData?.base_model === SOURCE_MODEL) {
+        source = await this.json(`https://huggingface.co/api/models/${SOURCE_MODEL}?blobs=true`, signal);
+        this.sourceMetadata = source;
+      }
+      const provenance = licenseInfo(metadata, source);
+      const files = describeFiles(metadata, source), totalBytes = files.reduce((sum, file) => sum + file.size, 0);
       this.update({ totalBytes }); await fsp.mkdir(staging, { recursive: true });
       let completed = 0;
       for (const file of files) {
@@ -87,14 +111,14 @@ class ModelPack extends EventEmitter {
         const timer = setInterval(() => { fsp.stat(destination).then(stat => { if (reporting && !signal.aborted) this.update({ bytes: Math.min(totalBytes, baseBytes + stat.size) }); }).catch(() => {}); }, 600);
         timer.unref();
         try {
-          const fileUrl = file.name.split('/').map(encodeURIComponent).join('/');
-          await this.download(`https://huggingface.co/${MODEL.id}/resolve/${metadata.sha}/${fileUrl}`, destination, signal);
+          const fileUrl = (file.remoteName || file.name).split('/').map(encodeURIComponent).join('/');
+          await this.download(`https://huggingface.co/${file.repository || MODEL.id}/resolve/${file.revision || metadata.sha}/${fileUrl}`, destination, signal);
         } finally { reporting = false; clearInterval(timer); }
         if ((await fsp.stat(destination)).size !== file.size || await digest(destination, file.algorithm, file.gitBlob) !== file.hash) throw new Error(`Checksum verification failed for ${file.name}. Download stopped.`);
         completed += file.size; this.update({ bytes: completed });
       }
       this.update({ phase: 'verifying' });
-      await fsp.writeFile(path.join(staging, 'pack.json'), JSON.stringify({ packId: MODEL.packId, model: MODEL.id, revision: metadata.sha, license: MODEL.license, files }, null, 2));
+      await fsp.writeFile(path.join(staging, 'pack.json'), JSON.stringify({ packId: MODEL.packId, model: MODEL.id, revision: metadata.sha, license: provenance.license, licenseSource: provenance, files }, null, 2));
       await verifyPack(staging);
       if (signal.aborted) throw new Error('Download canceled.');
       await fsp.mkdir(this.parent, { recursive: true });
@@ -119,4 +143,4 @@ class ModelPack extends EventEmitter {
     this.update({ phase: 'missing', installed: false, bytes: 0, totalBytes: 0, error: '' });
   }
 }
-module.exports = { MODEL, REQUIRED, OPTIONAL, describeFiles, verifyPack, digest, ModelPack };
+module.exports = { MODEL, SOURCE_MODEL, REQUIRED, OPTIONAL, licenseInfo, describeFiles, verifyPack, digest, ModelPack };

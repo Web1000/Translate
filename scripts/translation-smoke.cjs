@@ -12,6 +12,7 @@ const { LocalTranslator } = require('../src/local-translator.cjs');
     try { await pack.install(); }
     catch (error) {
       if (pack.metadata) console.error('Model metadata:', JSON.stringify({ revision: pack.metadata.sha, card: pack.metadata.cardData, files: pack.metadata.siblings?.map(file => file.rfilename) }));
+      if (pack.sourceMetadata) console.error('Source model metadata:', JSON.stringify({ revision: pack.sourceMetadata.sha, card: pack.sourceMetadata.cardData }));
       throw error;
     }
     console.log('\nLanguage pack license, revision, sizes, and checksums verified.');
