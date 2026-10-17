@@ -4,21 +4,28 @@ const path = require('node:path');
 const { createOcrWorker } = require('./ocr.cjs');
 const { parseDictionary, lookup } = require('./dictionary.cjs');
 const { translate } = require('./translation.cjs');
+const { ModelPack } = require('./model-pack.cjs');
+const { LocalTranslator } = require('./local-translator.cjs');
+const { utilityWorker } = require('./utility-worker.cjs');
 const selection = require('./selection.cjs');
 const { defaults, validatePreferences, registerShortcuts } = require('./preferences.cjs');
 let main, popup, overlay, tray, workerPromise, dictionary, preferences = { ...defaults };
 let captureBusy = false, ocrBusy = false, selectionBusy = false, quitting = false, recording = false;
 let shortcutErrors = [], preferencesWarning = '', revision = 0;
 let result = { id: 0, status: 'idle', text: '', tokens: [], source: 'selection', translation: '' };
+let localPack, localTranslator, translationRequest = 0;
 const dataRoot = () => app.isPackaged ? path.join(process.resourcesPath, 'data') : path.join(__dirname, '..', 'resources');
 const keyPath = () => path.join(app.getPath('userData'), 'translation-key');
 const preferencesPath = () => path.join(app.getPath('userData'), 'preferences.json');
 const alive = window => window && !window.isDestroyed();
 function key() { try { return safeStorage.decryptString(fs.readFileSync(keyPath())); } catch { return ''; } }
-function snapshot() { return { ...preferences, hasKey: Boolean(key()), dictionaryEntries: dictionary?.count || 0, shortcutErrors, warning: preferencesWarning, version: app.getVersion() }; }
+function offlineState() { return localTranslator?.snapshot() || { phase: 'checking', installed: false, enabled: false, engine: 'idle' }; }
+function resultSnapshot() { return { ...result, preferences, hasKey: Boolean(key()), localTranslation: offlineState() }; }
+function snapshot() { return { ...preferences, hasKey: Boolean(key()), dictionaryEntries: dictionary?.count || 0, shortcutErrors, warning: preferencesWarning, version: app.getVersion(), localTranslation: offlineState() }; }
+function sendResult() { if (alive(popup)) popup.webContents.send('result', resultSnapshot()); }
 function sendSettings() {
   if (alive(main)) main.webContents.send('settings-changed', snapshot());
-  if (alive(popup)) popup.webContents.send('result', { ...result, preferences, hasKey: Boolean(key()) });
+  sendResult();
 }
 function showSettings() { if (alive(main)) { main.show(); main.focus(); } }
 function options(extra = {}) {
@@ -37,6 +44,7 @@ function popupBounds(anchor, height) {
   return { width, height, x: Math.round(Math.max(area.x, Math.min(anchor.x + 16, area.x + area.width - width))), y: Math.round(Math.max(area.y, Math.min(anchor.y + 20, area.y + area.height - height))) };
 }
 async function showResult(next, anchor = screen.getCursorScreenPoint()) {
+  translationRequest++; localTranslator?.cancel();
   result = { id: ++revision, text: '', tokens: [], translation: '', ...next };
   const height = next.status === 'ready' ? Math.min(570, Math.max(240, 155 + next.tokens.filter(token => token.entries.length).length * 55)) : 205;
   if (!alive(popup)) {
@@ -48,12 +56,26 @@ async function showResult(next, anchor = screen.getCursorScreenPoint()) {
   } else {
     popup.setBounds(popupBounds(anchor, height));
   }
-  popup.webContents.send('result', { ...result, preferences, hasKey: Boolean(key()) });
+  sendResult();
   popup.showInactive();
 }
 async function showText(text, source, anchor) {
   if (!dictionary) throw new Error('The dictionary is missing. Reinstall the app or run npm.cmd ci from the source folder.');
   await showResult({ status: 'ready', text, tokens: lookup(dictionary, text), source }, anchor);
+  if (preferences.offlineTranslationEnabled && localPack.state.installed) startOfflineTranslation(result.id);
+}
+async function startOfflineTranslation(id) {
+  if (id !== result.id || result.status !== 'ready') return;
+  const request = ++translationRequest;
+  result.translationStatus = 'loading'; result.translationSource = 'offline'; result.translationError = ''; sendResult();
+  try {
+    const output = await localTranslator.translate(result.text);
+    if (id !== result.id || request !== translationRequest) return;
+    result.translation = output.text; result.translationStatus = 'ready'; result.translationElapsedMs = output.elapsedMs; sendResult();
+  } catch (error) {
+    if (id !== result.id || request !== translationRequest) return;
+    result.translationStatus = 'error'; result.translationError = error.message; sendResult();
+  }
 }
 async function selectedText() {
   if (!preferences.selectionEnabled || selectionBusy || captureBusy || ocrBusy) return;
@@ -116,7 +138,13 @@ function savePreferences(patch) {
     fs.writeFileSync(`${preferencesPath()}.tmp`, JSON.stringify(next, null, 2));
     fs.renameSync(`${preferencesPath()}.tmp`, preferencesPath());
   } catch { bind(previous); throw new Error('Could not save settings. Your previous settings are still active.'); }
-  preferences = next; preferencesWarning = ''; updateTray(); sendSettings(); return snapshot();
+  preferences = next; preferencesWarning = '';
+  if (previous.offlineTranslationEnabled !== next.offlineTranslationEnabled) {
+    translationRequest++; localTranslator.setEnabled(next.offlineTranslationEnabled);
+    if (!next.offlineTranslationEnabled && result.translationSource === 'offline') { result.translationStatus = 'idle'; result.translation = ''; }
+    if (next.offlineTranslationEnabled && result.status === 'ready' && localPack.state.installed) startOfflineTranslation(result.id);
+  }
+  updateTray(); sendSettings(); return snapshot();
 }
 function installIpc() {
   ipcMain.handle('settings', event => { trust(event, [main, popup]); return snapshot(); });
@@ -126,8 +154,8 @@ function installIpc() {
     if (enabled === true && main.isFocused()) { recording = true; globalShortcut.unregisterAll(); }
     else resumeShortcuts();
   });
-  ipcMain.handle('get-result', event => { trust(event, [popup]); return { ...result, preferences, hasKey: Boolean(key()) }; });
-  ipcMain.on('close-popup', event => { trust(event, [popup]); popup.hide(); });
+  ipcMain.handle('get-result', event => { trust(event, [popup]); return resultSnapshot(); });
+  ipcMain.on('close-popup', event => { trust(event, [popup]); translationRequest++; localTranslator.cancel(); popup.hide(); });
   ipcMain.on('show-settings', event => { trust(event, [popup]); showSettings(); });
   ipcMain.handle('capture', async event => { trust(event, [main, popup]); await captureAction(); });
   ipcMain.on('cancel-capture', event => { trust(event, [overlay]); overlay.close(); });
@@ -162,11 +190,38 @@ function installIpc() {
   ipcMain.handle('translate', async (event, id) => {
     trust(event, [popup]);
     if (id !== result.id || result.status !== 'ready') throw new Error('This lookup has changed. Try again.');
-    const output = await translate(result.text, key());
-    if (id !== result.id) return null;
+    const request = ++translationRequest; localTranslator.cancel();
+    result.translationStatus = 'loading'; result.translationSource = 'online'; result.translationError = ''; sendResult();
+    let output;
+    try { output = await translate(result.text, key()); }
+    catch (error) {
+      if (id === result.id && request === translationRequest) { result.translationStatus = 'error'; result.translationError = error.message; sendResult(); }
+      throw error;
+    }
+    if (id !== result.id || request !== translationRequest) return null;
     result.translation = output;
-    popup.webContents.send('result', { ...result, preferences, hasKey: Boolean(key()) });
+    result.translationSource = 'online'; result.translationStatus = 'ready'; result.translationError = ''; sendResult();
     return output;
+  });
+  ipcMain.handle('offline-translate', async (event, id) => {
+    trust(event, [popup]); if (id !== result.id) throw new Error('This lookup has changed.');
+    if (!preferences.offlineTranslationEnabled) throw new Error('Offline translation is turned off.');
+    await localTranslator.setEnabled(true); return startOfflineTranslation(id);
+  });
+  ipcMain.handle('install-language-pack', async event => {
+    trust(event, [main]);
+    await localTranslator.setEnabled(false);
+    await localPack.install();
+    if (!preferences.offlineTranslationEnabled) savePreferences({ offlineTranslationEnabled: true });
+    else await localTranslator.setEnabled(true);
+    sendSettings(); return snapshot();
+  });
+  ipcMain.handle('cancel-language-pack', event => { trust(event, [main]); localPack.cancel(); });
+  ipcMain.handle('remove-language-pack', async event => {
+    trust(event, [main]);
+    if (localPack.installing) throw new Error('Cancel the download before removing the pack.');
+    if (preferences.offlineTranslationEnabled) savePreferences({ offlineTranslationEnabled: false });
+    await localTranslator.stop(); await localPack.remove(); sendSettings(); return snapshot();
   });
   ipcMain.on('quit', event => { trust(event, [main]); app.quit(); });
 }
@@ -181,6 +236,9 @@ else {
     try { preferences = validatePreferences(JSON.parse(fs.readFileSync(preferencesPath(), 'utf8'))); }
     catch (error) { if (error.code !== 'ENOENT') preferencesWarning = 'Saved settings could not be read. Default settings are active until you save new settings.'; }
     try { dictionary = parseDictionary(require('cedict-json')); } catch { dictionary = null; }
+    localPack = new ModelPack(path.join(app.getPath('userData'), 'translation-packs'));
+    localTranslator = new LocalTranslator(localPack, { workerFactory: utilityWorker });
+    localPack.on('change', sendSettings); localTranslator.on('change', sendSettings);
     main = new BrowserWindow(options({ width: 900, height: 640, minWidth: 740, minHeight: 540, title: 'Hanzi Lens — Settings' }));
     protect(main);
     main.on('close', event => { if (!quitting) { event.preventDefault(); main.hide(); resumeShortcuts(); } });
@@ -192,10 +250,11 @@ else {
       tray.setToolTip('Hanzi Lens'); tray.on('double-click', showSettings); tray.on('click', showSettings); updateTray();
     }
     await main.loadFile(path.join(__dirname, 'index.html'));
+    localPack.check().then(() => localTranslator.setEnabled(preferences.offlineTranslationEnabled)).catch(() => {});
   }).catch(error => { console.error('Hanzi Lens could not start:', error.message); app.quit(); });
 }
 app.on('window-all-closed', () => {});
 app.on('before-quit', () => { quitting = true; });
-app.on('will-quit', () => { globalShortcut.unregisterAll(); tray?.destroy(); workerPromise?.then(worker => worker.terminate()).catch(() => {}); });
+app.on('will-quit', () => { localPack?.cancel(); localTranslator?.stop().catch(() => {}); globalShortcut.unregisterAll(); tray?.destroy(); workerPromise?.then(worker => worker.terminate()).catch(() => {}); });
 // Also used by integration tests to invoke the same handlers as registered shortcuts.
 module.exports = { selectedText, captureAction, savePreferences };

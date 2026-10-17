@@ -1,7 +1,7 @@
 const defaults = Object.freeze({
   selectionEnabled: true, captureEnabled: true,
   selectionShortcut: 'Control+Shift+D', captureShortcut: 'Control+Shift+S',
-  toneColors: true, showPinyin: true, fontSize: 'medium', chineseStyle: 'original'
+  toneColors: true, showPinyin: true, fontSize: 'medium', chineseStyle: 'original', offlineTranslationEnabled: false
 });
 function normalizeShortcut(value) {
   if (typeof value !== 'string' || value.length > 70) throw new Error('Choose a valid shortcut.');
@@ -19,7 +19,7 @@ function validatePreferences(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid settings.');
   if (Object.keys(value).some(key => !(key in defaults))) throw new Error('Unknown setting.');
   const result = { ...defaults, ...value };
-  for (const name of ['selectionEnabled', 'captureEnabled', 'toneColors', 'showPinyin']) if (typeof result[name] !== 'boolean') throw new Error(`Invalid ${name} setting.`);
+  for (const name of ['selectionEnabled', 'captureEnabled', 'toneColors', 'showPinyin', 'offlineTranslationEnabled']) if (typeof result[name] !== 'boolean') throw new Error(`Invalid ${name} setting.`);
   for (const name of ['selectionShortcut', 'captureShortcut']) result[name] = normalizeShortcut(result[name]);
   if (result.selectionShortcut === result.captureShortcut) throw new Error('Choose a different shortcut for each feature.');
   if (!['small', 'medium', 'large'].includes(result.fontSize)) throw new Error('Invalid text size.');
