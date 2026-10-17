@@ -112,7 +112,15 @@ class ModelPack extends EventEmitter {
         timer.unref();
         try {
           const fileUrl = (file.remoteName || file.name).split('/').map(encodeURIComponent).join('/');
-          await this.download(`https://huggingface.co/${file.repository || MODEL.id}/resolve/${file.revision || metadata.sha}/${fileUrl}`, destination, signal);
+          try {
+            await this.download(`https://huggingface.co/${file.repository || MODEL.id}/resolve/${file.revision || metadata.sha}/${fileUrl}`, destination, signal);
+          } catch (error) {
+            if (signal.aborted) throw error;
+            // Keep command arguments/signed redirect URLs out of diagnostics,
+            // but retain curl's HTTP/transport failure and the affected file.
+            const detail = String(error.stderr || error.message || '').replace(/https?:\/\/\S+/g, '[model host]').slice(-800);
+            throw new Error(`Download failed for ${file.name} (code ${error.code ?? 'unknown'}). ${detail}`);
+          }
         } finally { reporting = false; clearInterval(timer); }
         if ((await fsp.stat(destination)).size !== file.size || await digest(destination, file.algorithm, file.gitBlob) !== file.hash) throw new Error(`Checksum verification failed for ${file.name}. Download stopped.`);
         completed += file.size; this.update({ bytes: completed });
