@@ -1,0 +1,77 @@
+name: Translation quality research
+on:
+  workflow_dispatch:
+  push:
+    branches: [offline-translation]
+    paths:
+      - .github/workflows/translation-quality.yml
+      - scripts/evaluate-quality.cjs
+      - test/fixtures/translation-quality-cases.json
+permissions:
+  contents: write
+jobs:
+  evaluate:
+    runs-on: windows-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        model: [opus, m2m100, madlad]
+    env:
+      ONNXRUNTIME_NODE_INSTALL: skip
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/cache/restore@v4
+        id: weights
+        with:
+          path: .cache/translation-quality/${{ matrix.model }}/model
+          key: translation-quality-${{ matrix.model }}-v1
+      - name: Evaluate verified local models on Windows CPU
+        id: evaluate
+        run: |
+          node --max-old-space-size=8192 scripts/evaluate-quality.cjs ${{ matrix.model }} 2>&1 | Tee-Object -FilePath quality.log
+          exit $LASTEXITCODE
+      - uses: actions/cache/save@v4
+        if: steps.evaluate.outcome == 'success' && steps.weights.outputs.cache-hit != 'true'
+        with:
+          path: .cache/translation-quality/${{ matrix.model }}/model
+          key: ${{ steps.weights.outputs.cache-primary-key }}
+      - name: Upload research report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: translation-quality-${{ matrix.model }}
+          path: |
+            .cache/translation-quality/${{ matrix.model }}/report.json
+            .cache/translation-quality/${{ matrix.model }}/model/research-manifest.json
+            quality.log
+      - name: Record research for cloud inspection
+        if: always() && github.event_name == 'push'
+        env:
+          CANDIDATE: ${{ matrix.model }}
+          EVALUATION_RESULT: ${{ steps.evaluate.outcome }}
+        run: |
+          $file = ".cache/translation-quality/$env:CANDIDATE/report.json"
+          $log = if (Test-Path quality.log) { Get-Content quality.log -Raw } else { 'Evaluation did not start.' }
+          $report = @{
+            commit = $env:GITHUB_SHA
+            run_url = "https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+            outcome = $env:EVALUATION_RESULT
+            evaluation = if (Test-Path $file) { Get-Content $file -Raw | ConvertFrom-Json } else { $null }
+            log = $log.Substring([Math]::Max(0, $log.Length - 12000))
+          } | ConvertTo-Json -Depth 30
+          $branch = "codex-validation-quality-$env:CANDIDATE"
+          $remoteLine = git ls-remote origin "refs/heads/$branch"
+          $expected = if ($remoteLine) { ($remoteLine -split '\s+')[0] } else { '' }
+          git switch --orphan $branch
+          [System.IO.File]::WriteAllText((Join-Path $PWD 'validation-report.json'), $report, [System.Text.UTF8Encoding]::new($false))
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add validation-report.json
+          git commit -m "Record $env:CANDIDATE quality research for $env:GITHUB_SHA"
+          git push origin "HEAD:refs/heads/$branch" "--force-with-lease=refs/heads/${branch}:$expected"
