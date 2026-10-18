@@ -1,0 +1,54 @@
+{
+  "commit": "c98acaae9c07c6d616d23ced79ad8b2a8026c9c8",
+  "electron-translation": "\r\n> hanzi-lens@0.3.0-beta.3 test:electron\r\n> node --test test/electron.smoke.cjs\r\n\r\nTAP version 13\r\n# Subtest: shortcuts produce only a compact popup; settings, capture, errors and persistence work\r\nok 1 - shortcuts produce only a compact popup; settings, capture, errors and persistence work\r\n  ---\r\n  duration_ms: 5792.6723\r\n  type: 'test'\r\n  ...\r\n1..1\r\n# tests 1\r\n# suites 0\r\n# pass 1\r\n# fail 0\r\n# cancelled 0\r\n# skipped 0\r\n# todo 0\r\n# duration_ms 6081.6738\r\n",
+  "translation": "success",
+  "offline-translation": "\r\n> hanzi-lens@0.3.0-beta.3 test:translation\r\n> node scripts/translation-smoke.cjs --install\r\n\r\nWARNING: `MarianTokenizer` is not yet supported by Hugging Face's \"fast\" tokenizers library. Therefore, you may experience slightly inaccurate results.\r\n{\r\n  \"model\": \"Xenova/opus-mt-zh-en\",\r\n  \"modelRevision\": \"39d480d52a9ea3065a1f117adfe4dbc55de10e6f\",\r\n  \"modelLicense\": \"cc-by-4.0\",\r\n  \"licenseSource\": {\r\n    \"license\": \"cc-by-4.0\",\r\n    \"repository\": \"Helsinki-NLP/opus-mt-zh-en\",\r\n    \"revision\": \"cf109095479db38d6df799875e34039d4938aaa6\"\r\n  },\r\n  \"packBytes\": 119499668,\r\n  \"runtime\": \"v22.23.3\",\r\n  \"platform\": \"win32\",\r\n  \"arch\": \"x64\",\r\n  \"availableCpus\": 2,\r\n  \"cpuThreads\": 2,\r\n  \"modelLoadAndWarmMs\": 877,\r\n  \"processRssMB\": 504,\r\n  \"results\": [\r\n    {\r\n      \"input\": \"你好，世界。\",\r\n      \"text\": \"Hello, world.\",\r\n      \"elapsedMs\": 62\r\n    },\r\n    {\r\n      \"input\": \"我喜欢学习中文。\",\r\n      \"text\": \"I like learning Chinese.\",\r\n      \"elapsedMs\": 86\r\n    },\r\n    {\r\n      \"input\": \"我喜歡學習中文。\",\r\n      \"text\": \"I like learning Chinese.\",\r\n      \"elapsedMs\": 102\r\n    },\r\n    {\r\n      \"input\": \"请问，最近的火车站在哪里？\",\r\n      \"text\": \"Excuse me, where's the nearest train station?\",\r\n      \"elapsedMs\": 241\r\n    }\r\n  ]\r\n}\r\n",
+  "benchmark": {
+    "model": "Xenova/opus-mt-zh-en",
+    "modelRevision": "39d480d52a9ea3065a1f117adfe4dbc55de10e6f",
+    "modelLicense": "cc-by-4.0",
+    "licenseSource": {
+      "license": "cc-by-4.0",
+      "repository": "Helsinki-NLP/opus-mt-zh-en",
+      "revision": "cf109095479db38d6df799875e34039d4938aaa6"
+    },
+    "packBytes": 119499668,
+    "runtime": "v22.23.3",
+    "platform": "win32",
+    "arch": "x64",
+    "availableCpus": 2,
+    "cpuThreads": 2,
+    "modelLoadAndWarmMs": 877,
+    "processRssMB": 504,
+    "results": [
+      {
+        "input": "你好，世界。",
+        "text": "Hello, world.",
+        "elapsedMs": 62
+      },
+      {
+        "input": "我喜欢学习中文。",
+        "text": "I like learning Chinese.",
+        "elapsedMs": 86
+      },
+      {
+        "input": "我喜歡學習中文。",
+        "text": "I like learning Chinese.",
+        "elapsedMs": 102
+      },
+      {
+        "input": "请问，最近的火车站在哪里？",
+        "text": "Excuse me, where's the nearest train station?",
+        "elapsedMs": 241
+      }
+    ]
+  },
+  "packaged-translation": "\r\n> hanzi-lens@0.3.0-beta.3 test:electron\r\n> node --test test/electron.smoke.cjs\r\n\r\nTAP version 13\r\n# Subtest: shortcuts produce only a compact popup; settings, capture, errors and persistence work\r\nok 1 - shortcuts produce only a compact popup; settings, capture, errors and persistence work\r\n  ---\r\n  duration_ms: 6342.2494\r\n  type: 'test'\r\n  ...\r\n1..1\r\n# tests 1\r\n# suites 0\r\n# pass 1\r\n# fail 0\r\n# cancelled 0\r\n# skipped 0\r\n# todo 0\r\n# duration_ms 6704.877\r\n",
+  "native": "success",
+  "build": "success",
+  "run_url": "https://github.com/Web1000/Translate/actions/runs/39155611543",
+  "electron": "success",
+  "packaged": "success",
+  "native-selection": "\r\n> hanzi-lens@0.3.0-beta.3 test:windows\r\n> node --test test/windows-selection.native.cjs\r\n\r\nTAP version 13\r\n# Subtest: Windows selection helper: automatic path with a real selected text control\r\nok 1 - Windows selection helper: automatic path with a real selected text control\r\n  ---\r\n  duration_ms: 6539.2627\r\n  type: 'test'\r\n  ...\r\n# Subtest: Windows selection helper: clipboard path with a real selected text control\r\nok 2 - Windows selection helper: clipboard path with a real selected text control\r\n  ---\r\n  duration_ms: 1413.3077\r\n  type: 'test'\r\n  ...\r\n1..2\r\n# tests 2\r\n# suites 0\r\n# pass 2\r\n# fail 0\r\n# cancelled 0\r\n# skipped 0\r\n# todo 0\r\n# duration_ms 8030.3491\r\n",
+  "upload": "success"
+}
