@@ -1,4 +1,4 @@
-# Hanzi Lens for Windows — 0.3.0-beta.2
+# Hanzi Lens for Windows — 0.3.0-beta.3
 
 A background Chinese reading companion with compact lookup popups. Inspired by HanziKey; this is an independent project, not an official Windows port.
 
@@ -10,7 +10,7 @@ Windows app: open [Actions → Windows desktop](https://github.com/Web1000/Trans
 
 ## Try the Windows app
 
-Quit the previous version first (close its window or press Ctrl+C in the terminal that started it). Open `Hanzi Lens 0.3.0-beta.2.exe` from `dist/`. It is portable and unsigned; no Node.js installation is needed to use the executable.
+Quit the previous version first (close its window or press Ctrl+C in the terminal that started it). Open `Hanzi Lens 0.3.0-beta.3.exe` from `dist/`. It is portable and unsigned; no Node.js installation is needed to use the executable.
 
 The main window contains **settings only**. Close it when you are done; Hanzi Lens keeps running in the system tray. Reopen Settings from the tray icon, or use its **Quit Hanzi Lens** menu item to stop the app and release its shortcuts.
 
@@ -35,17 +35,17 @@ The helper is launched with PowerShell `-EncodedCommand` to preserve command quo
 
 ## Offline sentence translation
 
-New in 0.3.0-beta.2: free, CPU-based sentence translation with a separately downloaded language pack (about 120 MB). Real translations passed in both source and packaged Windows Electron. Short test sentences took 115–315 ms after warm-up on the Windows CI machine; see [VALIDATION.md](VALIDATION.md) for measurements and validation history.
+New in 0.3.0-beta.3: free, CPU-based sentence translation with a separately downloaded language pack (about 120 MB). Real translations passed in both source and packaged Windows Electron. Short test sentences took 115–315 ms after warm-up on the Windows CI machine; see [VALIDATION.md](VALIDATION.md) for measurements and validation history.
 
 Open **Settings → Translation → Download language pack**. The one-time download comes from Hugging Face, with an immutable model revision, model license, file sizes, and checksums verified before installation. Download progress and cancellation are available. The pack is stored in the app's user-data folder and survives app updates; it is not bundled in every executable download.
 
-After installation, automatic offline translation is enabled. Selection and OCR results show dictionary definitions first, then the English sentence. Both Simplified and Traditional input are supported by normalizing Traditional text with OpenCC before model inference; the original text stays in the lookup.
+After installation, automatic offline translation is enabled. A recognized single word (in either script, including surrounding punctuation) uses CC-CEDICT only; it never calls sentence generation and does not need a language pack. Longer selections and OCR passages show dictionary definitions first, then the generated English sentence. Both Simplified and Traditional input are supported by normalizing Traditional text with OpenCC before model inference; the original text stays in the lookup.
 
 The default candidate is Xenova's int8 ONNX conversion of OPUS-MT Chinese → English. It runs through Transformers.js / ONNX Runtime's CPU provider with at most two inference threads. No GPU, account, API key, or per-translation fee is needed. The converted pack explicitly names Helsinki-NLP as its base model. The installer verifies the declared model license, or that named base model’s license if the conversion has no separate declaration; Apache 2.0 and CC BY 4.0 are supported. Attribution and the applicable upstream model card are retained in the pack. The validated OPUS-MT source uses CC BY 4.0.
 
 The model stays loaded while enabled, including a warm-up generation at startup. Turn the feature off to release its process and memory; remove the pack to reclaim disk space. Translation runs in a separate Electron utility process, with remote-model loading disabled during inference. A failed engine does not need to close Settings or dictionary lookup. New lookups cancel outdated translations instead of building an unlimited queue.
 
-Inputs over 2,000 characters are rejected with a clear popup message rather than silently shortened. Longer sentences are split into bounded chunks, with paragraph breaks retained. This small model is intended as a reading aid; translations can be awkward or wrong, particularly for names, idioms, or complex context.
+Inputs over 2,000 characters are rejected with a clear popup message rather than silently shortened. Longer sentences are split into bounded chunks, with paragraph breaks retained. This small model is intended as a reading aid. It can make serious meaning errors, including negation, omitted clauses, currency, and context. A 30-case comparison reproduced the reported 交际 → “No, no, no” error with both the fast and reference Marian tokenizers. Argos zh-en 1.9 fixed that isolated word but introduced other serious errors, so it was not selected as a replacement. See [the comparison and raw results](docs/translation-evaluation.md). Single-word dictionary routing prevents that particular generated-word failure; sentence translation quality remains limited. Decimal points are kept inside numbers rather than split into separate model inputs.
 
 Performance depends on CPU and RAM. There is no near-instant guarantee for all PCs, no established minimum RAM yet, and no claim that older hardware has been benchmarked. The included real-model smoke test measures loading, generation latency, and benchmark-process memory. Check `translation-benchmark.json` in a validated Windows artifact for measured results on the CI machine, not your own PC.
 

@@ -1,3 +1,13 @@
+# Dictionary routing and translation evaluation: 0.3.0-beta.3
+
+Recognized single words now use dictionary lookup only, without a generated sentence or a language-pack setup prompt. A central generation guard covers shortcuts, explicit retry IPC and settings toggles. Surrounding punctuation is accepted; mixed text and unknown fragments still use passage handling. Decimal points within numbers are preserved by the chunker.
+
+Observed local checks: 26 unit tests, 6 browser tests and the source Electron integration passed. Windows source/packaged checks exercise the word-generation guard with the real language pack enabled; read their exact commit and final status before claiming readiness.
+
+A separate Windows evaluation completed all 30 diagnostic cases for the current OPUS model, the same weights with reference Marian tokenization, and the Argos zh-en 1.9 CTranslate2 backend. The screenshot failure was reproduced. Argos was not selected as a quality upgrade. References are manually authored meanings, not an exact-match scoring system or a representative benchmark. [Method, findings and limitations](docs/translation-evaluation.md); raw outputs and provenance are stored alongside it. Research dependencies and alternative weights are not bundled in the EXE.
+
+## Previous validation history
+
 # Dictionary popup beta: 0.3.0-beta.2
 
 The dictionary breakdown now renders one row per Chinese token. Exact duplicate entries merge without losing glosses; ordinary dictionary entries precede surname/variant references. Other readings remain available in an expandable control. Standalone Latin strings (including APP and dictionary slang entries A/P) are excluded from lookup, and Latin text is omitted from the reading strip. Original input remains intact for offline sentence translation. Entry ordering is a heuristic, not contextual disambiguation.
