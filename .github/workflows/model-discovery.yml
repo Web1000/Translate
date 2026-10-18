@@ -1,0 +1,49 @@
+name: Translation model metadata
+on:
+  push:
+    branches: [offline-translation]
+    paths: [.github/workflows/model-discovery.yml]
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect public upstream model metadata
+        run: |
+          python - <<'PY'
+          import json, urllib.request, urllib.error
+          endpoints = {
+            'onnx_candidates': 'https://huggingface.co/api/models?search=madlad400&filter=onnx&limit=30&full=true&cardData=true',
+            'google_source': 'https://huggingface.co/api/models/google/madlad400-3b-mt?blobs=true',
+            'jbochi_source': 'https://huggingface.co/api/models/jbochi/madlad400-3b-mt?blobs=true',
+            'xenova_conversion': 'https://huggingface.co/api/models/Xenova/madlad400-3b-mt?blobs=true',
+            'community_conversion': 'https://huggingface.co/api/models/onnx-community/madlad400-3b-mt?blobs=true'
+          }
+          report = {}
+          for key, url in endpoints.items():
+            try:
+              with urllib.request.urlopen(url, timeout=60) as response:
+                report[key] = {'status': response.status, 'metadata': json.load(response)}
+            except urllib.error.HTTPError as error:
+              report[key] = {'status': error.code}
+          with open('model-metadata.json', 'w', encoding='utf-8') as target:
+            json.dump(report, target, indent=2, ensure_ascii=False)
+          print(json.dumps({key: value['status'] for key, value in report.items()}))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: model-metadata
+          path: model-metadata.json
+      - name: Record metadata for cloud inspection
+        run: |
+          branch=codex-validation-model-discovery
+          expected=$(git ls-remote origin "refs/heads/$branch" | cut -f1)
+          git switch --orphan "$branch"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add model-metadata.json
+          git commit -m "Record translation model metadata for $GITHUB_SHA"
+          git push origin "HEAD:refs/heads/$branch" "--force-with-lease=refs/heads/$branch:$expected"
