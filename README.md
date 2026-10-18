@@ -99,6 +99,8 @@ The Windows workflow also runs automatically every Monday at 14:00 UTC on the de
 
 Older desktop runs on the same branch are canceled when a newer one starts. Research-only model scripts and reports do not rebuild the app by themselves. Translation-quality experiments have a separate Windows workflow, keeping successful model execution distinct from correct English meaning.
 
+The [54-case Windows accuracy comparison](docs/translation-quality.md) includes OPUS, M2M100, and MADLAD with raw outputs and CPU/memory measurements. Neither tested replacement met the quality bar, so the shipped engine remains unchanged.
+
 ## Model validation
 
 `npm run test:translation -- --install` downloads a real pack, checks it, runs Simplified/Traditional translation cases, and writes `.cache/translation-benchmark.json`. Subsequent runs need no network while that pack remains installed. The Windows workflow requires this check and a packaged-app test with the real pack before uploading a candidate executable. It includes the measured report with the executable.

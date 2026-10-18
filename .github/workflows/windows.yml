@@ -3,6 +3,8 @@ on:
   push:
     paths-ignore:
       - docs/**
+      - README.md
+      - VALIDATION.md
       - .github/workflows/model-discovery.yml
       - .github/workflows/translation-quality.yml
       - scripts/evaluate-quality.cjs
