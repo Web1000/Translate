@@ -9,9 +9,9 @@ const { translationChunks } = require('../src/translation-text.cjs');
 const run = promisify(execFile);
 const ROOT = path.resolve(__dirname, '..');
 const CANDIDATES = {
-  opus: { model: 'Xenova/opus-mt-zh-en', source: 'Helsinki-NLP/opus-mt-zh-en', type: 'marian', task: 'translation' },
-  m2m100: { model: 'Xenova/m2m100_418M', source: 'facebook/m2m100_418M', type: 'm2m_100', task: 'translation', languages: { src_lang: 'zh', tgt_lang: 'en' } },
-  madlad: { model: 'Xenova/madlad400-3b-mt', source: 'google/madlad400-3b-mt', type: 't5', task: 'text2text-generation', prefix: '<2en> ' }
+  opus: { model: 'Xenova/opus-mt-zh-en', revision: '39d480d52a9ea3065a1f117adfe4dbc55de10e6f', source: 'Helsinki-NLP/opus-mt-zh-en', sourceRevision: 'cf109095479db38d6df799875e34039d4938aaa6', type: 'marian', task: 'translation' },
+  m2m100: { model: 'Xenova/m2m100_418M', revision: '9c374f0b7aca709787cea97b047bfbbd1559d177', source: 'facebook/m2m100_418M', sourceRevision: '55c2e61bbf05dfb8d7abccdc3fae6fc8512fd636', type: 'm2m_100', task: 'translation', languages: { src_lang: 'zh', tgt_lang: 'en' } },
+  madlad: { model: 'Kutalia/madlad400-3b-mt-onnx', revision: '066656188a5390d1d0af6e824707a12cf28fc309', source: 'google/madlad400-3b-mt', sourceRevision: 'fa184c675da0b5c9e1c8694fccd4e12e2d422094', type: 't5', task: 'text2text-generation', prefix: '<2en> ' }
 };
 const LICENSES = new Set(['apache-2.0', 'mit', 'cc-by-4.0']);
 const CURL = ['--fail', '--location', '--silent', '--show-error', '--proto', '=https', '--proto-redir', '=https', '--connect-timeout', '30', '--max-time', '900', '--retry', '2'];
@@ -44,10 +44,11 @@ async function verifiedDownload(model, revision, description, destination) {
 }
 async function prepare(candidate, directory) {
   const [metadata, source] = await Promise.all([
-    json(`https://huggingface.co/api/models/${candidate.model}?blobs=true`),
-    json(`https://huggingface.co/api/models/${candidate.source}?blobs=true`)
+    json(`https://huggingface.co/api/models/${candidate.model}/revision/${candidate.revision}?blobs=true`),
+    json(`https://huggingface.co/api/models/${candidate.source}/revision/${candidate.sourceRevision}?blobs=true`)
   ]);
   for (const item of [metadata, source]) if (!/^[a-f0-9]{40}$/.test(item.sha || '')) throw new Error('Immutable model revision required.');
+  if (metadata.sha !== candidate.revision || source.sha !== candidate.sourceRevision) throw new Error('Unexpected model revision.');
   if (metadata.id !== candidate.model || source.id !== candidate.source) throw new Error('Unexpected model identity.');
   // A conversion may inherit only from its explicitly declared expected base model.
   const base = metadata.cardData?.base_model;
@@ -109,9 +110,16 @@ async function main() {
       let text = '';
       for (const chunk of chunks) text += await translate(chunk.text) + chunk.separator;
       const result = { id: item.id, kind: item.kind, input: item.input, referenceMeaning: item.reference, normalizedChunks: chunks, text: text.trim(), elapsedMs: Math.round(performance.now() - before) };
+      // Also measure whether retaining sentence context changes passage meaning.
+      // Keep the primary comparison identical to the released app's chunking.
+      if (chunks.length > 1) {
+        const contextInput = chunks.map(chunk => chunk.text + chunk.separator).join('').trim();
+        const contextStarted = performance.now();
+        result.fullContext = { input: contextInput, text: await translate(contextInput), elapsedMs: Math.round(performance.now() - contextStarted) };
+      }
       report.results.push(result);
       report.processRssMB = Math.round(process.memoryUsage().rss / 1048576);
-      report.peakProcessRssMB = Math.max(report.peakProcessRssMB || 0, report.processRssMB);
+      report.maxSampledProcessRssMB = Math.max(report.maxSampledProcessRssMB || 0, report.processRssMB);
       await save();
       console.log(JSON.stringify({ id: item.id, text: result.text, elapsedMs: result.elapsedMs }));
     }
