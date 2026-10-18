@@ -76,6 +76,12 @@ async function startOfflineTranslation(id) {
     result.translationStatus = 'error'; result.translationError = error.message; sendResult();
   }
 }
+function translatePendingPassage() {
+  if (preferences.offlineTranslationEnabled && localPack.state.installed &&
+      result.status === 'ready' && result.lookupMode === 'passage' && !result.translationStatus) {
+    startOfflineTranslation(result.id);
+  }
+}
 async function selectedText() {
   if (!preferences.selectionEnabled || selectionBusy || captureBusy || ocrBusy) return;
   selectionBusy = true;
@@ -226,7 +232,12 @@ else {
       tray.setToolTip('Hanzi Lens'); tray.on('double-click', showSettings); tray.on('click', showSettings); updateTray();
     }
     await main.loadFile(path.join(__dirname, 'index.html'));
-    localPack.check().then(() => localTranslator.setEnabled(preferences.offlineTranslationEnabled)).catch(() => {});
+    localPack.check().then(async () => {
+      await localTranslator.setEnabled(preferences.offlineTranslationEnabled);
+      // A selection can arrive while startup is still verifying the pack.
+      // Translate it once the model is ready instead of leaving a blank result.
+      translatePendingPassage();
+    }).catch(() => {});
   }).catch(error => { console.error('Hanzi Lens could not start:', error.message); app.quit(); });
 }
 app.on('window-all-closed', () => {});

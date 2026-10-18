@@ -73,12 +73,17 @@ test('shortcuts produce only a compact popup; settings, capture, errors and pers
     assert.match(restoredClipboard.html, /<b>previous clipboard<\/b>/);
     if (process.env.ELECTRON_TEST_LANGUAGE_PACK) {
       await page.waitForFunction(async () => (await window.hanzi.settings()).localTranslation.installed, null, { timeout: 30000 });
-      await page.evaluate(() => window.hanzi.saveSettings({ offlineTranslationEnabled: true }));
+      const enabled = await page.evaluate(() => window.hanzi.saveSettings({ offlineTranslationEnabled: true }));
+      assert.equal(enabled.offlineTranslationEnabled, true);
       try {
         await popup.waitForFunction(() => /Chinese/i.test(document.getElementById('translation').textContent), null, { timeout: 60000 });
       } catch (error) {
         console.error('Offline popup diagnostic:', await popup.evaluate(() => ({ text: document.getElementById('translation').textContent, status: document.getElementById('sentence-status').textContent })));
         console.error('Offline engine diagnostic:', await page.evaluate(async () => (await window.hanzi.settings()).localTranslation));
+        console.error('Offline main result diagnostic:', await popup.evaluate(async () => {
+          const result = await window.hanzi.result();
+          return { id: result.id, status: result.status, text: result.text, lookupMode: result.lookupMode, translationStatus: result.translationStatus, translation: result.translation, error: result.error, translationError: result.translationError, preferences: result.preferences };
+        }));
         throw error;
       }
       assert.match(await popup.locator('#sentence-status').innerText(), /On-device/);
