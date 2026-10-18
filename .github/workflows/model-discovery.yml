@@ -21,6 +21,8 @@ jobs:
             'jbochi_source': 'https://huggingface.co/api/models/jbochi/madlad400-3b-mt?blobs=true',
             'xenova_conversion': 'https://huggingface.co/api/models/Xenova/madlad400-3b-mt?blobs=true',
             'community_conversion': 'https://huggingface.co/api/models/onnx-community/madlad400-3b-mt?blobs=true'
+            , 'bilingual_candidates': 'https://huggingface.co/api/models?search=opus-mt-tc-big-zh-en&filter=onnx&limit=20&full=true&cardData=true'
+            , 'bilingual_source': 'https://huggingface.co/api/models/Helsinki-NLP/opus-mt-tc-big-zh-en?blobs=true'
           }
           report = {}
           for key, url in endpoints.items():
