@@ -1,0 +1,902 @@
+{
+  "log": "WARNING: `MarianTokenizer` is not yet supported by Hugging Face's \"fast\" tokenizers library. Therefore, you may experience slightly inaccurate results.\r\n{\"id\":\"word-social\",\"text\":\"- No, no, no.\",\"elapsedMs\":272}\r\n{\"id\":\"word-social-traditional\",\"text\":\"- No, no, no.\",\"elapsedMs\":182}\r\n{\"id\":\"word-bank\",\"text\":\"Bank\",\"elapsedMs\":90}\r\n{\"id\":\"word-ability\",\"text\":\"Capacity\",\"elapsedMs\":88}\r\n{\"id\":\"word-program\",\"text\":\"Procedures\",\"elapsedMs\":99}\r\n{\"id\":\"social-ability\",\"text\":\"Communication\",\"elapsedMs\":94}\r\n{\"id\":\"social-sentence\",\"text\":\"He's very good at communication.\",\"elapsedMs\":255}\r\n{\"id\":\"social-contrast\",\"text\":\"She is very capable of working but not very good at communication.\",\"elapsedMs\":371}\r\n{\"id\":\"greeting\",\"text\":\"Hello, world.\",\"elapsedMs\":202}\r\n{\"id\":\"learning\",\"text\":\"I like learning Chinese.\",\"elapsedMs\":173}\r\n{\"id\":\"learning-traditional\",\"text\":\"I like learning Chinese.\",\"elapsedMs\":205}\r\n{\"id\":\"station\",\"text\":\"Excuse me, where's the nearest train station?\",\"elapsedMs\":280}\r\n{\"id\":\"negation\",\"text\":\"I don't want to go, just don't have time for this.\",\"elapsedMs\":384}\r\n{\"id\":\"not-yet\",\"text\":\"I haven't eaten yet.\",\"elapsedMs\":136}\r\n{\"id\":\"missed-message\",\"text\":\"Sorry, I didn't hear from you.\",\"elapsedMs\":262}\r\n{\"id\":\"refund\",\"text\":\"If you don't get a refund tomorrow, please contact the customer service.\",\"elapsedMs\":296}\r\n{\"id\":\"look-after\",\"text\":\"Please, check the kids out. I'll get a delivery.\",\"elapsedMs\":293}\r\n{\"id\":\"look-read\",\"text\":\"I've read this book. Take it.\",\"elapsedMs\":215}\r\n{\"id\":\"bank-direction\",\"text\":\"The bank's on the right at the intersection.\",\"elapsedMs\":260}\r\n{\"id\":\"research-life\",\"text\":\"He's studying the origins of life.\",\"elapsedMs\":175}\r\n{\"id\":\"cannot-make-it\",\"text\":\"I can't leave today. We'll see you later.\",\"elapsedMs\":282}\r\n{\"id\":\"casual-subtitle\",\"text\":\"Forget it. Stop messing around.\",\"elapsedMs\":159}\r\n{\"id\":\"mixed-app\",\"text\":\"APP can be translated offline without charge.\",\"elapsedMs\":227}\r\n{\"id\":\"amount-date\",\"text\":\"The order was for $128.50, which is due by 18 October.\",\"elapsedMs\":366}\r\n{\"id\":\"traditional-interface\",\"text\":\"If you cannot connect, check the network setup and try again.\",\"elapsedMs\":271}\r\n{\"id\":\"context-paragraph\",\"text\":\"I went to the bank yesterday to get a new card. Staff members said that they would have to wait three working days before receiving them.\",\"elapsedMs\":520}\r\n{\"id\":\"ambiguous-title\",\"text\":\"Life in North America is a big deal! Super-store and APP count.\",\"elapsedMs\":377}\r\n{\"id\":\"idiom\",\"text\":\"Don't worry, we'll take it one step at a time.\",\"elapsedMs\":356}\r\n{\"id\":\"technical\",\"text\":\"After the update is completed, please exit the program and restart.\",\"elapsedMs\":239}\r\n{\"id\":\"food-allergy\",\"text\":\"I'm allergic to peanuts. Is there peanuts in this dish?\",\"elapsedMs\":408}\r\n{\"id\":\"double-negation-willing\",\"text\":\"I'm not trying to help you. I just can't get out of here right now.\",\"elapsedMs\":481}\r\n{\"id\":\"almost-missed\",\"text\":\"I almost missed the train.\",\"elapsedMs\":190}\r\n{\"id\":\"only-if\",\"text\":\"Refunds may be requested only after audit.\",\"elapsedMs\":192}\r\n{\"id\":\"unless\",\"text\":\"We'll leave tomorrow unless it rains.\",\"elapsedMs\":194}\r\n{\"id\":\"not-necessary\",\"text\":\"You don't have to finish everything today.\",\"elapsedMs\":193}\r\n{\"id\":\"must-not\",\"text\":\"Don't shut down the computer until the backup is complete.\",\"elapsedMs\":290}\r\n{\"id\":\"passive-agent\",\"text\":\"The King lent Li $100 to pay him back.\",\"elapsedMs\":224}\r\n{\"id\":\"borrow-agent\",\"text\":\"Li borrowed $100 from Wang.\",\"elapsedMs\":209}\r\n{\"id\":\"measure-sale\",\"text\":\"The second half price, not both.\",\"elapsedMs\":170}\r\n{\"id\":\"amount-decimal\",\"text\":\"That's $320.50, not $32.50.\",\"elapsedMs\":415}\r\n{\"id\":\"tomorrow-yesterday\",\"text\":\"He said he came here yesterday, and today he said he was coming.\",\"elapsedMs\":304}\r\n{\"id\":\"context-address\",\"text\":\"The client wrote the address wrong. We've contacted him and asked him to confirm the correct receipt address.\",\"elapsedMs\":485}\r\n{\"id\":\"context-polysemy\",\"text\":\"This store is cheap. You can come and see it when you want.\",\"elapsedMs\":266}\r\n{\"id\":\"traditional-refund\",\"text\":\"This amount has not been recorded and should not be duplicated.\",\"elapsedMs\":354}\r\n{\"id\":\"traditional-child\",\"text\":\"Please take care of the baby. I'll be right back.\",\"elapsedMs\":241}\r\n{\"id\":\"mixed-version\",\"text\":\"Please install version Ž11, do not download the picos version.\",\"elapsedMs\":323}\r\n{\"id\":\"mixed-error\",\"text\":\"Please reconnect the NB device when an E102 error occurs.\",\"elapsedMs\":388}\r\n{\"id\":\"colloquial-no-rush\",\"text\":\"No hurry, just call me when you're done.\",\"elapsedMs\":217}\r\n{\"id\":\"colloquial-understood\",\"text\":\"I thought you were mad.\",\"elapsedMs\":246}\r\n{\"id\":\"idiom-politeness\",\"text\":\"This is a dilemma for me.\",\"elapsedMs\":145}\r\n{\"id\":\"quantity-limit\",\"text\":\"Each customer purchases up to two items, each not exceeding $50.\",\"elapsedMs\":333}\r\n{\"id\":\"comparison\",\"text\":\"The version was slower than the previous one, but the translation was much more accurate.\",\"elapsedMs\":282}\r\n{\"id\":\"permission\",\"text\":\"Without your consent, we will not upload any screenshots.\",\"elapsedMs\":253}\r\n{\"id\":\"ocr-newlines\",\"text\":\"Save the file first.\\nThen close the window and reopen the program.\",\"elapsedMs\":232}\r\n{\"candidate\":\"opus\",\"status\":\"completed\",\"cases\":54}\r\n",
+  "commit": "97690ee347fc91cecf038dea2a5a13ed44191a15",
+  "run_url": "https://github.com/Web1000/Translate/actions/runs/39139047323",
+  "outcome": "success",
+  "evaluation": {
+    "status": "completed",
+    "candidate": "opus",
+    "platform": "win32",
+    "arch": "x64",
+    "runtime": "v22.23.3",
+    "transformers": "4.3.1",
+    "cpu": "AMD EPYC 9V45 96-Core Processor                ",
+    "availableCpus": 2,
+    "systemMemoryMB": 8187,
+    "cpuThreads": 2,
+    "dtype": "q8",
+    "decoding": {
+      "num_beams": 1,
+      "max_new_tokens": 256
+    },
+    "results": [
+      {
+        "id": "word-social",
+        "kind": "word",
+        "input": "交际",
+        "referenceMeaning": "social interaction; socializing; communication",
+        "normalizedChunks": [
+          {
+            "text": "交际",
+            "separator": " "
+          }
+        ],
+        "text": "- No, no, no.",
+        "elapsedMs": 272
+      },
+      {
+        "id": "word-social-traditional",
+        "kind": "word",
+        "input": "交際",
+        "referenceMeaning": "social interaction; socializing; communication",
+        "normalizedChunks": [
+          {
+            "text": "交际",
+            "separator": " "
+          }
+        ],
+        "text": "- No, no, no.",
+        "elapsedMs": 182
+      },
+      {
+        "id": "word-bank",
+        "kind": "word",
+        "input": "银行",
+        "referenceMeaning": "bank (financial institution)",
+        "normalizedChunks": [
+          {
+            "text": "银行",
+            "separator": " "
+          }
+        ],
+        "text": "Bank",
+        "elapsedMs": 90
+      },
+      {
+        "id": "word-ability",
+        "kind": "word",
+        "input": "能力",
+        "referenceMeaning": "ability; capability",
+        "normalizedChunks": [
+          {
+            "text": "能力",
+            "separator": " "
+          }
+        ],
+        "text": "Capacity",
+        "elapsedMs": 88
+      },
+      {
+        "id": "word-program",
+        "kind": "word",
+        "input": "程序",
+        "referenceMeaning": "program; procedure",
+        "normalizedChunks": [
+          {
+            "text": "程序",
+            "separator": " "
+          }
+        ],
+        "text": "Procedures",
+        "elapsedMs": 99
+      },
+      {
+        "id": "social-ability",
+        "kind": "phrase",
+        "input": "交际能力",
+        "referenceMeaning": "social skills; interpersonal skills",
+        "normalizedChunks": [
+          {
+            "text": "交际能力",
+            "separator": " "
+          }
+        ],
+        "text": "Communication",
+        "elapsedMs": 94
+      },
+      {
+        "id": "social-sentence",
+        "kind": "sentence",
+        "input": "他很擅长交际。",
+        "referenceMeaning": "He is good at socializing.",
+        "normalizedChunks": [
+          {
+            "text": "他很擅长交际。",
+            "separator": " "
+          }
+        ],
+        "text": "He's very good at communication.",
+        "elapsedMs": 255
+      },
+      {
+        "id": "social-contrast",
+        "kind": "sentence",
+        "input": "她工作能力很强，但不太擅长交际。",
+        "referenceMeaning": "She is very capable at work, but not very good at socializing.",
+        "normalizedChunks": [
+          {
+            "text": "她工作能力很强，但不太擅长交际。",
+            "separator": " "
+          }
+        ],
+        "text": "She is very capable of working but not very good at communication.",
+        "elapsedMs": 371
+      },
+      {
+        "id": "greeting",
+        "kind": "sentence",
+        "input": "你好，世界。",
+        "referenceMeaning": "Hello, world.",
+        "normalizedChunks": [
+          {
+            "text": "你好，世界。",
+            "separator": " "
+          }
+        ],
+        "text": "Hello, world.",
+        "elapsedMs": 202
+      },
+      {
+        "id": "learning",
+        "kind": "sentence",
+        "input": "我喜欢学习中文。",
+        "referenceMeaning": "I like learning Chinese.",
+        "normalizedChunks": [
+          {
+            "text": "我喜欢学习中文。",
+            "separator": " "
+          }
+        ],
+        "text": "I like learning Chinese.",
+        "elapsedMs": 173
+      },
+      {
+        "id": "learning-traditional",
+        "kind": "sentence",
+        "input": "我喜歡學習中文。",
+        "referenceMeaning": "I like learning Chinese.",
+        "normalizedChunks": [
+          {
+            "text": "我喜欢学习中文。",
+            "separator": " "
+          }
+        ],
+        "text": "I like learning Chinese.",
+        "elapsedMs": 205
+      },
+      {
+        "id": "station",
+        "kind": "sentence",
+        "input": "请问，最近的火车站在哪里？",
+        "referenceMeaning": "Excuse me, where is the nearest train station?",
+        "normalizedChunks": [
+          {
+            "text": "请问，最近的火车站在哪里？",
+            "separator": " "
+          }
+        ],
+        "text": "Excuse me, where's the nearest train station?",
+        "elapsedMs": 280
+      },
+      {
+        "id": "negation",
+        "kind": "sentence",
+        "input": "我不是不想去，只是今天没有时间。",
+        "referenceMeaning": "It is not that I do not want to go; I just do not have time today.",
+        "normalizedChunks": [
+          {
+            "text": "我不是不想去，只是今天没有时间。",
+            "separator": " "
+          }
+        ],
+        "text": "I don't want to go, just don't have time for this.",
+        "elapsedMs": 384
+      },
+      {
+        "id": "not-yet",
+        "kind": "sentence",
+        "input": "我还没吃饭。",
+        "referenceMeaning": "I have not eaten yet.",
+        "normalizedChunks": [
+          {
+            "text": "我还没吃饭。",
+            "separator": " "
+          }
+        ],
+        "text": "I haven't eaten yet.",
+        "elapsedMs": 136
+      },
+      {
+        "id": "missed-message",
+        "kind": "sentence",
+        "input": "不好意思，我刚才没看到你的消息。",
+        "referenceMeaning": "Sorry, I did not see your message earlier.",
+        "normalizedChunks": [
+          {
+            "text": "不好意思，我刚才没看到你的消息。",
+            "separator": " "
+          }
+        ],
+        "text": "Sorry, I didn't hear from you.",
+        "elapsedMs": 262
+      },
+      {
+        "id": "refund",
+        "kind": "sentence",
+        "input": "如果明天还没收到退款，请联系客服。",
+        "referenceMeaning": "If you still have not received the refund tomorrow, please contact customer service.",
+        "normalizedChunks": [
+          {
+            "text": "如果明天还没收到退款，请联系客服。",
+            "separator": " "
+          }
+        ],
+        "text": "If you don't get a refund tomorrow, please contact the customer service.",
+        "elapsedMs": 296
+      },
+      {
+        "id": "look-after",
+        "kind": "sentence",
+        "input": "请帮我看一下孩子，我去拿个快递。",
+        "referenceMeaning": "Please watch the child for me while I go pick up a delivery.",
+        "normalizedChunks": [
+          {
+            "text": "请帮我看一下孩子，我去拿个快递。",
+            "separator": " "
+          }
+        ],
+        "text": "Please, check the kids out. I'll get a delivery.",
+        "elapsedMs": 293
+      },
+      {
+        "id": "look-read",
+        "kind": "sentence",
+        "input": "这本书我看过了，你拿去看吧。",
+        "referenceMeaning": "I have already read this book; take it and read it.",
+        "normalizedChunks": [
+          {
+            "text": "这本书我看过了，你拿去看吧。",
+            "separator": " "
+          }
+        ],
+        "text": "I've read this book. Take it.",
+        "elapsedMs": 215
+      },
+      {
+        "id": "bank-direction",
+        "kind": "sentence",
+        "input": "银行在路口的右边。",
+        "referenceMeaning": "The bank is on the right side of the intersection.",
+        "normalizedChunks": [
+          {
+            "text": "银行在路口的右边。",
+            "separator": " "
+          }
+        ],
+        "text": "The bank's on the right at the intersection.",
+        "elapsedMs": 260
+      },
+      {
+        "id": "research-life",
+        "kind": "sentence",
+        "input": "他正在研究生命的起源。",
+        "referenceMeaning": "He is researching the origin of life.",
+        "normalizedChunks": [
+          {
+            "text": "他正在研究生命的起源。",
+            "separator": " "
+          }
+        ],
+        "text": "He's studying the origins of life.",
+        "elapsedMs": 175
+      },
+      {
+        "id": "cannot-make-it",
+        "kind": "sentence",
+        "input": "我今天实在走不开，我们改天再约吧。",
+        "referenceMeaning": "I really cannot get away today; let us meet another day.",
+        "normalizedChunks": [
+          {
+            "text": "我今天实在走不开，我们改天再约吧。",
+            "separator": " "
+          }
+        ],
+        "text": "I can't leave today. We'll see you later.",
+        "elapsedMs": 282
+      },
+      {
+        "id": "casual-subtitle",
+        "kind": "sentence",
+        "input": "算了吧，别再折腾了。",
+        "referenceMeaning": "Forget it; stop making a fuss.",
+        "normalizedChunks": [
+          {
+            "text": "算了吧，别再折腾了。",
+            "separator": " "
+          }
+        ],
+        "text": "Forget it. Stop messing around.",
+        "elapsedMs": 159
+      },
+      {
+        "id": "mixed-app",
+        "kind": "sentence",
+        "input": "这个 APP 可以离线翻译，不需要付费。",
+        "referenceMeaning": "This app can translate offline and does not require payment.",
+        "normalizedChunks": [
+          {
+            "text": "这个 APP 可以离线翻译，不需要付费。",
+            "separator": " "
+          }
+        ],
+        "text": "APP can be translated offline without charge.",
+        "elapsedMs": 227
+      },
+      {
+        "id": "amount-date",
+        "kind": "sentence",
+        "input": "订单金额是128.50元，请在10月18日前付款。",
+        "referenceMeaning": "The order total is 128.50 yuan; please pay before October 18.",
+        "normalizedChunks": [
+          {
+            "text": "订单金额是128.50元，请在10月18日前付款。",
+            "separator": " "
+          }
+        ],
+        "text": "The order was for $128.50, which is due by 18 October.",
+        "elapsedMs": 366
+      },
+      {
+        "id": "traditional-interface",
+        "kind": "sentence",
+        "input": "無法連線，請檢查網路設定後再試一次。",
+        "referenceMeaning": "Unable to connect. Please check the network settings and try again.",
+        "normalizedChunks": [
+          {
+            "text": "无法连线，请检查网路设定后再试一次。",
+            "separator": " "
+          }
+        ],
+        "text": "If you cannot connect, check the network setup and try again.",
+        "elapsedMs": 271
+      },
+      {
+        "id": "context-paragraph",
+        "kind": "passage",
+        "input": "我昨天去银行办了张新卡。工作人员说，要等三个工作日才能收到。",
+        "referenceMeaning": "I went to the bank yesterday to get a new card. The staff said it would take three working days to arrive.",
+        "normalizedChunks": [
+          {
+            "text": "我昨天去银行办了张新卡。",
+            "separator": " "
+          },
+          {
+            "text": "工作人员说，要等三个工作日才能收到。",
+            "separator": " "
+          }
+        ],
+        "text": "I went to the bank yesterday to get a new card. Staff members said that they would have to wait three working days before receiving them.",
+        "elapsedMs": 520,
+        "fullContext": {
+          "input": "我昨天去银行办了张新卡。 工作人员说，要等三个工作日才能收到。",
+          "text": "I went to the bank yesterday to get a new card, and the staff said it would take three working days to get it.",
+          "elapsedMs": 566
+        }
+      },
+      {
+        "id": "ambiguous-title",
+        "kind": "phrase",
+        "input": "北美生活必看！超全店铺和APP盘点",
+        "referenceMeaning": "A must-read for life in North America: a comprehensive roundup of stores and apps.",
+        "normalizedChunks": [
+          {
+            "text": "北美生活必看！",
+            "separator": " "
+          },
+          {
+            "text": "超全店铺和APP盘点",
+            "separator": " "
+          }
+        ],
+        "text": "Life in North America is a big deal! Super-store and APP count.",
+        "elapsedMs": 377,
+        "fullContext": {
+          "input": "北美生活必看！ 超全店铺和APP盘点",
+          "text": "The whole store and the APP.",
+          "elapsedMs": 206
+        }
+      },
+      {
+        "id": "idiom",
+        "kind": "sentence",
+        "input": "别担心，我们一步一步来。",
+        "referenceMeaning": "Do not worry; we will take it one step at a time.",
+        "normalizedChunks": [
+          {
+            "text": "别担心，我们一步一步来。",
+            "separator": " "
+          }
+        ],
+        "text": "Don't worry, we'll take it one step at a time.",
+        "elapsedMs": 356
+      },
+      {
+        "id": "technical",
+        "kind": "sentence",
+        "input": "更新完成后，请退出程序并重新启动。",
+        "referenceMeaning": "After the update is complete, please quit the program and restart it.",
+        "normalizedChunks": [
+          {
+            "text": "更新完成后，请退出程序并重新启动。",
+            "separator": " "
+          }
+        ],
+        "text": "After the update is completed, please exit the program and restart.",
+        "elapsedMs": 239
+      },
+      {
+        "id": "food-allergy",
+        "kind": "sentence",
+        "input": "我对花生过敏，这道菜里面有花生吗？",
+        "referenceMeaning": "I am allergic to peanuts. Does this dish contain peanuts?",
+        "normalizedChunks": [
+          {
+            "text": "我对花生过敏，这道菜里面有花生吗？",
+            "separator": " "
+          }
+        ],
+        "text": "I'm allergic to peanuts. Is there peanuts in this dish?",
+        "elapsedMs": 408
+      },
+      {
+        "id": "double-negation-willing",
+        "kind": "sentence",
+        "input": "我并不是不愿意帮你，我只是现在抽不开身。",
+        "referenceMeaning": "It is not that I am unwilling to help; I just cannot get away right now.",
+        "normalizedChunks": [
+          {
+            "text": "我并不是不愿意帮你，我只是现在抽不开身。",
+            "separator": " "
+          }
+        ],
+        "text": "I'm not trying to help you. I just can't get out of here right now.",
+        "elapsedMs": 481
+      },
+      {
+        "id": "almost-missed",
+        "kind": "sentence",
+        "input": "我差点没赶上火车。",
+        "referenceMeaning": "I almost missed the train (but caught it).",
+        "normalizedChunks": [
+          {
+            "text": "我差点没赶上火车。",
+            "separator": " "
+          }
+        ],
+        "text": "I almost missed the train.",
+        "elapsedMs": 190
+      },
+      {
+        "id": "only-if",
+        "kind": "sentence",
+        "input": "只有审核通过后，才能申请退款。",
+        "referenceMeaning": "A refund can only be requested after approval.",
+        "normalizedChunks": [
+          {
+            "text": "只有审核通过后，才能申请退款。",
+            "separator": " "
+          }
+        ],
+        "text": "Refunds may be requested only after audit.",
+        "elapsedMs": 192
+      },
+      {
+        "id": "unless",
+        "kind": "sentence",
+        "input": "除非下雨，否则我们明天照常出发。",
+        "referenceMeaning": "We will leave as planned tomorrow unless it rains.",
+        "normalizedChunks": [
+          {
+            "text": "除非下雨，否则我们明天照常出发。",
+            "separator": " "
+          }
+        ],
+        "text": "We'll leave tomorrow unless it rains.",
+        "elapsedMs": 194
+      },
+      {
+        "id": "not-necessary",
+        "kind": "sentence",
+        "input": "你不用今天就把所有事情做完。",
+        "referenceMeaning": "You do not have to finish everything today.",
+        "normalizedChunks": [
+          {
+            "text": "你不用今天就把所有事情做完。",
+            "separator": " "
+          }
+        ],
+        "text": "You don't have to finish everything today.",
+        "elapsedMs": 193
+      },
+      {
+        "id": "must-not",
+        "kind": "sentence",
+        "input": "在备份完成之前，千万不要关闭电脑。",
+        "referenceMeaning": "Do not turn off the computer before the backup finishes.",
+        "normalizedChunks": [
+          {
+            "text": "在备份完成之前，千万不要关闭电脑。",
+            "separator": " "
+          }
+        ],
+        "text": "Don't shut down the computer until the backup is complete.",
+        "elapsedMs": 290
+      },
+      {
+        "id": "passive-agent",
+        "kind": "sentence",
+        "input": "小王借给小李一百元，小李还没还。",
+        "referenceMeaning": "Xiao Wang lent Xiao Li one hundred yuan; Xiao Li has not repaid it yet.",
+        "normalizedChunks": [
+          {
+            "text": "小王借给小李一百元，小李还没还。",
+            "separator": " "
+          }
+        ],
+        "text": "The King lent Li $100 to pay him back.",
+        "elapsedMs": 224
+      },
+      {
+        "id": "borrow-agent",
+        "kind": "sentence",
+        "input": "小李向小王借了一百元。",
+        "referenceMeaning": "Xiao Li borrowed one hundred yuan from Xiao Wang.",
+        "normalizedChunks": [
+          {
+            "text": "小李向小王借了一百元。",
+            "separator": " "
+          }
+        ],
+        "text": "Li borrowed $100 from Wang.",
+        "elapsedMs": 209
+      },
+      {
+        "id": "measure-sale",
+        "kind": "sentence",
+        "input": "第二件半价，不是两件都半价。",
+        "referenceMeaning": "The second item is half price, not both items.",
+        "normalizedChunks": [
+          {
+            "text": "第二件半价，不是两件都半价。",
+            "separator": " "
+          }
+        ],
+        "text": "The second half price, not both.",
+        "elapsedMs": 170
+      },
+      {
+        "id": "amount-decimal",
+        "kind": "sentence",
+        "input": "一共是三百二十点五元，不是三十二点五元。",
+        "referenceMeaning": "The total is 320.5 yuan, not 32.5 yuan.",
+        "normalizedChunks": [
+          {
+            "text": "一共是三百二十点五元，不是三十二点五元。",
+            "separator": " "
+          }
+        ],
+        "text": "That's $320.50, not $32.50.",
+        "elapsedMs": 415
+      },
+      {
+        "id": "tomorrow-yesterday",
+        "kind": "sentence",
+        "input": "他昨天说今天来，今天又说明天来。",
+        "referenceMeaning": "Yesterday he said he would come today; today he says he will come tomorrow.",
+        "normalizedChunks": [
+          {
+            "text": "他昨天说今天来，今天又说明天来。",
+            "separator": " "
+          }
+        ],
+        "text": "He said he came here yesterday, and today he said he was coming.",
+        "elapsedMs": 304
+      },
+      {
+        "id": "context-address",
+        "kind": "passage",
+        "input": "客户把地址写错了。我们已经联系他，请他确认正确的收货地址。",
+        "referenceMeaning": "The customer wrote the wrong address. We have contacted him to confirm the correct delivery address.",
+        "normalizedChunks": [
+          {
+            "text": "客户把地址写错了。",
+            "separator": " "
+          },
+          {
+            "text": "我们已经联系他，请他确认正确的收货地址。",
+            "separator": " "
+          }
+        ],
+        "text": "The client wrote the address wrong. We've contacted him and asked him to confirm the correct receipt address.",
+        "elapsedMs": 485,
+        "fullContext": {
+          "input": "客户把地址写错了。 我们已经联系他，请他确认正确的收货地址。",
+          "text": "The client wrote the address wrong, and we contacted him to confirm the correct receipt.",
+          "elapsedMs": 414
+        }
+      },
+      {
+        "id": "context-polysemy",
+        "kind": "sentence",
+        "input": "这家店的东西很便宜，你方便的时候来看看。",
+        "referenceMeaning": "Things at this shop are inexpensive; come have a look when convenient.",
+        "normalizedChunks": [
+          {
+            "text": "这家店的东西很便宜，你方便的时候来看看。",
+            "separator": " "
+          }
+        ],
+        "text": "This store is cheap. You can come and see it when you want.",
+        "elapsedMs": 266
+      },
+      {
+        "id": "traditional-refund",
+        "kind": "sentence",
+        "input": "這筆款項尚未入帳，請勿重複付款。",
+        "referenceMeaning": "This payment has not yet been credited; please do not pay again.",
+        "normalizedChunks": [
+          {
+            "text": "这笔款项尚未入帐，请勿重复付款。",
+            "separator": " "
+          }
+        ],
+        "text": "This amount has not been recorded and should not be duplicated.",
+        "elapsedMs": 354
+      },
+      {
+        "id": "traditional-child",
+        "kind": "sentence",
+        "input": "麻煩你幫我照顧一下孩子，我很快就回來。",
+        "referenceMeaning": "Please look after the child for me; I will be back soon.",
+        "normalizedChunks": [
+          {
+            "text": "麻烦你帮我照顾一下孩子，我很快就回来。",
+            "separator": " "
+          }
+        ],
+        "text": "Please take care of the baby. I'll be right back.",
+        "elapsedMs": 241
+      },
+      {
+        "id": "mixed-version",
+        "kind": "sentence",
+        "input": "请安装 Windows 11 版本，不要下载 macOS 版本。",
+        "referenceMeaning": "Install the Windows 11 version; do not download the macOS version.",
+        "normalizedChunks": [
+          {
+            "text": "请安装 Windows 11 版本，不要下载 macOS 版本。",
+            "separator": " "
+          }
+        ],
+        "text": "Please install version Ž11, do not download the picos version.",
+        "elapsedMs": 323
+      },
+      {
+        "id": "mixed-error",
+        "kind": "sentence",
+        "input": "出现错误 E102 时，请重新连接 USB 设备。",
+        "referenceMeaning": "If error E102 occurs, reconnect the USB device.",
+        "normalizedChunks": [
+          {
+            "text": "出现错误 E102 时，请重新连接 USB 设备。",
+            "separator": " "
+          }
+        ],
+        "text": "Please reconnect the NB device when an E102 error occurs.",
+        "elapsedMs": 388
+      },
+      {
+        "id": "colloquial-no-rush",
+        "kind": "sentence",
+        "input": "不急，你忙完了再回我就行。",
+        "referenceMeaning": "No rush; reply when you have finished what you are doing.",
+        "normalizedChunks": [
+          {
+            "text": "不急，你忙完了再回我就行。",
+            "separator": " "
+          }
+        ],
+        "text": "No hurry, just call me when you're done.",
+        "elapsedMs": 217
+      },
+      {
+        "id": "colloquial-understood",
+        "kind": "sentence",
+        "input": "原来是这么回事，我还以为你生气了。",
+        "referenceMeaning": "So that is what happened; I thought you were angry.",
+        "normalizedChunks": [
+          {
+            "text": "原来是这么回事，我还以为你生气了。",
+            "separator": " "
+          }
+        ],
+        "text": "I thought you were mad.",
+        "elapsedMs": 246
+      },
+      {
+        "id": "idiom-politeness",
+        "kind": "sentence",
+        "input": "这件事让我进退两难。",
+        "referenceMeaning": "This puts me in a dilemma / a difficult position.",
+        "normalizedChunks": [
+          {
+            "text": "这件事让我进退两难。",
+            "separator": " "
+          }
+        ],
+        "text": "This is a dilemma for me.",
+        "elapsedMs": 145
+      },
+      {
+        "id": "quantity-limit",
+        "kind": "sentence",
+        "input": "每位顾客最多购买两件，每件不超过五十元。",
+        "referenceMeaning": "Each customer may buy at most two items, each costing no more than fifty yuan.",
+        "normalizedChunks": [
+          {
+            "text": "每位顾客最多购买两件，每件不超过五十元。",
+            "separator": " "
+          }
+        ],
+        "text": "Each customer purchases up to two items, each not exceeding $50.",
+        "elapsedMs": 333
+      },
+      {
+        "id": "comparison",
+        "kind": "sentence",
+        "input": "这个版本比上一个慢一点，但翻译准确多了。",
+        "referenceMeaning": "This version is a little slower than the previous one, but its translations are much more accurate.",
+        "normalizedChunks": [
+          {
+            "text": "这个版本比上一个慢一点，但翻译准确多了。",
+            "separator": " "
+          }
+        ],
+        "text": "The version was slower than the previous one, but the translation was much more accurate.",
+        "elapsedMs": 282
+      },
+      {
+        "id": "permission",
+        "kind": "sentence",
+        "input": "没有你的同意，我们不会上传任何截图。",
+        "referenceMeaning": "We will not upload any screenshots without your consent.",
+        "normalizedChunks": [
+          {
+            "text": "没有你的同意，我们不会上传任何截图。",
+            "separator": " "
+          }
+        ],
+        "text": "Without your consent, we will not upload any screenshots.",
+        "elapsedMs": 253
+      },
+      {
+        "id": "ocr-newlines",
+        "kind": "passage",
+        "input": "请先保存文件。\n然后关闭窗口，重新打开程序。",
+        "referenceMeaning": "Save the file first. Then close the window and reopen the program.",
+        "normalizedChunks": [
+          {
+            "text": "请先保存文件。",
+            "separator": "\n"
+          },
+          {
+            "text": "然后关闭窗口，重新打开程序。",
+            "separator": " "
+          }
+        ],
+        "text": "Save the file first.\nThen close the window and reopen the program.",
+        "elapsedMs": 232,
+        "fullContext": {
+          "input": "请先保存文件。\n然后关闭窗口，重新打开程序。",
+          "text": "Save the file first. Then close the window and reopen the program.",
+          "elapsedMs": 238
+        }
+      }
+    ],
+    "limitations": "Manually authored diagnostic cases, not a representative accuracy score. CPU timings include tokenization and decode after one warmup. Memory is the research process, not the complete app. All engines receive the same app OpenCC normalization and chunks. Word cases diagnose raw engines; the app uses dictionary definitions for recognized words.",
+    "model": {
+      "model": "Xenova/opus-mt-zh-en",
+      "revision": "39d480d52a9ea3065a1f117adfe4dbc55de10e6f",
+      "source": "Helsinki-NLP/opus-mt-zh-en",
+      "sourceRevision": "cf109095479db38d6df799875e34039d4938aaa6",
+      "license": "cc-by-4.0",
+      "sourceLicense": "cc-by-4.0",
+      "downloadBytes": 121250698,
+      "files": [
+        {
+          "name": "README.md",
+          "size": 571,
+          "hash": "0bb94a2baf9309cc76798066ea86803b1e2a99fa",
+          "algorithm": "sha1",
+          "gitBlob": true
+        },
+        {
+          "name": "config.json",
+          "size": 1389,
+          "hash": "dcd3adfa622976cc4a51c68d115dc9d443d3cbd0",
+          "algorithm": "sha1",
+          "gitBlob": true
+        },
+        {
+          "name": "generation_config.json",
+          "size": 293,
+          "hash": "11cf47bfd6c2e512bf7ab5d58d49ab109732647a",
+          "algorithm": "sha1",
+          "gitBlob": true
+        },
+        {
+          "name": "onnx/decoder_model_merged_quantized.onnx",
+          "size": 60212804,
+          "hash": "c6b7f04ff1ba0fbd1bf6852599b4c0cad6fe512d57cd887f44ef36cf705424cb",
+          "algorithm": "sha256",
+          "gitBlob": false
+        },
+        {
+          "name": "onnx/encoder_model_quantized.onnx",
+          "size": 52899742,
+          "hash": "84d5e171b626bc8b6b220d022ac58696e9528c25deeacca62b5cbf4364547a99",
+          "algorithm": "sha256",
+          "gitBlob": false
+        },
+        {
+          "name": "quantize_config.json",
+          "size": 3124,
+          "hash": "bc9b5598111931367960e6f11199c0f835390b4e",
+          "algorithm": "sha1",
+          "gitBlob": true
+        },
+        {
+          "name": "special_tokens_map.json",
+          "size": 74,
+          "hash": "79ae7ea5bf033de69d0055820c57885e3d377bbb",
+          "algorithm": "sha1",
+          "gitBlob": true
+        },
+        {
+          "name": "tokenizer.json",
+          "size": 6381339,
+          "hash": "545ab64f6d0ae9bbbb0c8899f04e1ae4f805fc87",
+          "algorithm": "sha1",
+          "gitBlob": true
+        },
+        {
+          "name": "tokenizer_config.json",
+          "size": 282,
+          "hash": "9bae5b64c3a664f32d2aac60cbde97fc9e78a5ef",
+          "algorithm": "sha1",
+          "gitBlob": true
+        },
+        {
+          "name": "vocab.json",
+          "size": 1747906,
+          "hash": "6deaada491d50c10819b654c1de4ab1d21cfdf88",
+          "algorithm": "sha1",
+          "gitBlob": true
+        }
+      ]
+    },
+    "loadAndWarmMs": 1034,
+    "processRssMB": 511,
+    "maxSampledProcessRssMB": 605
+  }
+}
