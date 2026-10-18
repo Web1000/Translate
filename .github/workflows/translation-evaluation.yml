@@ -1,0 +1,68 @@
+name: Offline translation evaluation
+on:
+  push:
+    branches: [offline-translation]
+    paths:
+      - .github/workflows/translation-evaluation.yml
+      - scripts/evaluate-translation.py
+      - scripts/evaluate-onnx.cjs
+      - scripts/prepare-evaluation.cjs
+      - test/fixtures/translation-cases.json
+permissions:
+  contents: write
+jobs:
+  evaluate:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    env:
+      ONNXRUNTIME_NODE_INSTALL: skip
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: npm ci
+      - uses: actions/cache/restore@v4
+        with:
+          path: .cache/language-packs
+          key: opus-zh-en-q8-v1-${{ hashFiles('src/model-pack.cjs') }}
+      - name: Install research dependencies only
+        run: python -m pip install ctranslate2==4.6.0 sentencepiece==0.2.1 transformers==4.57.1 sacremoses==0.1.1 psutil==7.0.0
+      - name: Prepare verified OPUS weights and shared input cases
+        run: node scripts/prepare-evaluation.cjs
+      - name: Compare actual model outputs
+        run: |
+          python scripts/evaluate-translation.py 2>&1 | Tee-Object -FilePath evaluation.log
+          exit $LASTEXITCODE
+      - name: Upload comparison report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: translation-evaluation
+          path: |
+            .cache/translation-evaluation/report.json
+            evaluation.log
+      - name: Record comparison for cloud inspection
+        if: always()
+        run: |
+          $log = if (Test-Path evaluation.log) { Get-Content evaluation.log -Raw } else { 'Evaluation did not start.' }
+          $report = @{
+            commit = $env:GITHUB_SHA
+            run_url = "https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+            log = $log.Substring([Math]::Max(0, $log.Length - 12000))
+            evaluation = if (Test-Path .cache/translation-evaluation/report.json) { Get-Content .cache/translation-evaluation/report.json -Raw | ConvertFrom-Json } else { $null }
+          } | ConvertTo-Json -Depth 30
+          $branch = 'codex-validation-translation-evaluation'
+          $remoteLine = git ls-remote origin "refs/heads/$branch"
+          $expected = if ($remoteLine) { ($remoteLine -split '\s+')[0] } else { '' }
+          git switch --orphan $branch
+          [System.IO.File]::WriteAllText((Join-Path $PWD 'validation-report.json'), $report, [System.Text.UTF8Encoding]::new($false))
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add validation-report.json
+          git commit -m "Record translation comparison for $env:GITHUB_SHA"
+          git push origin "HEAD:refs/heads/$branch" "--force-with-lease=refs/heads/${branch}:$expected"

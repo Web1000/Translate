@@ -15,6 +15,8 @@ test('Traditional text is normalized, paragraph breaks survive, and long input i
   const chunks = translationChunks('你好。\n歡迎。'); assert.equal(chunks[0].separator, '\n');
   const long = translationChunks('學'.repeat(400)); assert.ok(long.every(chunk => [...chunk.text].length <= 160)); assert.equal(long.map(chunk => chunk.text).join(''), '学'.repeat(400));
   assert.throws(() => translationChunks('中'.repeat(2001)), /2,000/);
+  const amount = '订单金额是128.50元，版本是1.2.3。';
+  assert.deepEqual(translationChunks(amount), [{ text: amount, separator: ' ' }]);
 });
 test('engine keeps one loaded worker, cancels stale work, and releases memory on disable', async () => {
   const { worker, translator } = fixture();

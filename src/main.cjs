@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createOcrWorker } = require('./ocr.cjs');
 const { parseDictionary, lookup } = require('./dictionary.cjs');
+const { isDictionaryLookup } = require('./lookup-policy.cjs');
 const { ModelPack } = require('./model-pack.cjs');
 const { LocalTranslator } = require('./local-translator.cjs');
 const { utilityWorker } = require('./utility-worker.cjs');
@@ -58,11 +59,12 @@ async function showResult(next, anchor = screen.getCursorScreenPoint()) {
 }
 async function showText(text, source, anchor) {
   if (!dictionary) throw new Error('The dictionary is missing. Reinstall the app or run npm.cmd ci from the source folder.');
-  await showResult({ status: 'ready', text, tokens: lookup(dictionary, text), source }, anchor);
+  const tokens = lookup(dictionary, text);
+  await showResult({ status: 'ready', text, tokens, lookupMode: isDictionaryLookup(tokens) ? 'word' : 'passage', source }, anchor);
   if (preferences.offlineTranslationEnabled && localPack.state.installed) startOfflineTranslation(result.id);
 }
 async function startOfflineTranslation(id) {
-  if (id !== result.id || result.status !== 'ready') return;
+  if (id !== result.id || result.status !== 'ready' || result.lookupMode === 'word') return;
   const request = ++translationRequest;
   result.translationStatus = 'loading'; result.translationSource = 'offline'; result.translationError = ''; sendResult();
   try {

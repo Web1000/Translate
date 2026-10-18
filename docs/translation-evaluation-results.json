@@ -1,0 +1,1435 @@
+{
+  "testedCommit": "664f2e403526aff2284d4e1822133d5f0b342a9c",
+  "runUrl": "https://github.com/Web1000/Translate/actions/runs/39082897658",
+  "evaluation": {
+    "status": "completed",
+    "platform": "Windows-10-10.0.26100-SP0",
+    "cpu": "AMD64 Family 25 Model 17 Stepping 1, AuthenticAMD",
+    "cpuThreads": 2,
+    "python": "3.11.9",
+    "cases": [
+      {
+        "id": "word-social",
+        "kind": "word",
+        "input": "交际",
+        "referenceMeaning": "social interaction; socializing; communication",
+        "current": "- No, no, no.",
+        "currentMs": 207,
+        "marianReference": "- No, no, no.",
+        "marianReferenceMs": 230,
+        "tokenDifferences": [
+          {
+            "text": "交际",
+            "fast": [
+              7,
+              3231,
+              16616,
+              0
+            ],
+            "reference": [
+              7,
+              3231,
+              16616,
+              0
+            ]
+          }
+        ],
+        "argos": "Communication",
+        "argosMs": 29
+      },
+      {
+        "id": "word-social-traditional",
+        "kind": "word",
+        "input": "交際",
+        "referenceMeaning": "social interaction; socializing; communication",
+        "current": "- No, no, no.",
+        "currentMs": 215,
+        "marianReference": "- No, no, no.",
+        "marianReferenceMs": 173,
+        "tokenDifferences": [
+          {
+            "text": "交际",
+            "fast": [
+              7,
+              3231,
+              16616,
+              0
+            ],
+            "reference": [
+              7,
+              3231,
+              16616,
+              0
+            ]
+          }
+        ],
+        "argos": "Communication",
+        "argosMs": 31
+      },
+      {
+        "id": "word-bank",
+        "kind": "word",
+        "input": "银行",
+        "referenceMeaning": "bank (financial institution)",
+        "current": "Bank",
+        "currentMs": 92,
+        "marianReference": "Bank",
+        "marianReferenceMs": 92,
+        "tokenDifferences": [
+          {
+            "text": "银行",
+            "fast": [
+              7,
+              2307,
+              0
+            ],
+            "reference": [
+              7,
+              2307,
+              0
+            ]
+          }
+        ],
+        "argos": "Bank",
+        "argosMs": 24
+      },
+      {
+        "id": "word-ability",
+        "kind": "word",
+        "input": "能力",
+        "referenceMeaning": "ability; capability",
+        "current": "Capacity",
+        "currentMs": 64,
+        "marianReference": "Capacity",
+        "marianReferenceMs": 80,
+        "tokenDifferences": [
+          {
+            "text": "能力",
+            "fast": [
+              7,
+              856,
+              0
+            ],
+            "reference": [
+              7,
+              856,
+              0
+            ]
+          }
+        ],
+        "argos": "Capacity",
+        "argosMs": 26
+      },
+      {
+        "id": "word-program",
+        "kind": "word",
+        "input": "程序",
+        "referenceMeaning": "program; procedure",
+        "current": "Procedures",
+        "currentMs": 85,
+        "marianReference": "Procedures",
+        "marianReferenceMs": 45,
+        "tokenDifferences": [
+          {
+            "text": "程序",
+            "fast": [
+              7,
+              777,
+              0
+            ],
+            "reference": [
+              7,
+              777,
+              0
+            ]
+          }
+        ],
+        "argos": "Procedures",
+        "argosMs": 24
+      },
+      {
+        "id": "social-ability",
+        "kind": "phrase",
+        "input": "交际能力",
+        "referenceMeaning": "social skills; interpersonal skills",
+        "current": "Communication",
+        "currentMs": 51,
+        "marianReference": "Communication",
+        "marianReferenceMs": 101,
+        "tokenDifferences": [
+          {
+            "text": "交际能力",
+            "fast": [
+              7,
+              3231,
+              16616,
+              856,
+              0
+            ],
+            "reference": [
+              7,
+              3231,
+              16616,
+              856,
+              0
+            ]
+          }
+        ],
+        "argos": "Communication",
+        "argosMs": 26
+      },
+      {
+        "id": "social-sentence",
+        "kind": "sentence",
+        "input": "他很擅长交际。",
+        "referenceMeaning": "He is good at socializing.",
+        "current": "He's very good at communication.",
+        "currentMs": 185,
+        "marianReference": "He's very good at communication.",
+        "marianReferenceMs": 227,
+        "tokenDifferences": [
+          {
+            "text": "他很擅长交际。",
+            "fast": [
+              32208,
+              41863,
+              3231,
+              16616,
+              9,
+              0
+            ],
+            "reference": [
+              32208,
+              41863,
+              3231,
+              16616,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "He's good at communication.",
+        "argosMs": 82
+      },
+      {
+        "id": "social-contrast",
+        "kind": "sentence",
+        "input": "她工作能力很强，但不太擅长交际。",
+        "referenceMeaning": "She is very capable at work, but not very good at socializing.",
+        "current": "She is very capable of working but not very good at communication.",
+        "currentMs": 342,
+        "marianReference": "She is very capable of working but not very good at communication.",
+        "marianReferenceMs": 260,
+        "tokenDifferences": [
+          {
+            "text": "她工作能力很强，但不太擅长交际。",
+            "fast": [
+              609,
+              193,
+              856,
+              37881,
+              2,
+              330,
+              10626,
+              41863,
+              3231,
+              16616,
+              9,
+              0
+            ],
+            "reference": [
+              609,
+              193,
+              856,
+              37881,
+              2,
+              330,
+              10626,
+              41863,
+              3231,
+              16616,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "She works very well, but not very well.",
+        "argosMs": 128
+      },
+      {
+        "id": "greeting",
+        "kind": "sentence",
+        "input": "你好，世界。",
+        "referenceMeaning": "Hello, world.",
+        "current": "Hello, world.",
+        "currentMs": 221,
+        "marianReference": "Hello, world.",
+        "marianReferenceMs": 163,
+        "tokenDifferences": [
+          {
+            "text": "你好，世界。",
+            "fast": [
+              5349,
+              2,
+              907,
+              9,
+              0
+            ],
+            "reference": [
+              5349,
+              2,
+              907,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "Hello, world.",
+        "argosMs": 47
+      },
+      {
+        "id": "learning",
+        "kind": "sentence",
+        "input": "我喜欢学习中文。",
+        "referenceMeaning": "I like learning Chinese.",
+        "current": "I like learning Chinese.",
+        "currentMs": 148,
+        "marianReference": "I like learning Chinese.",
+        "marianReferenceMs": 171,
+        "tokenDifferences": [
+          {
+            "text": "我喜欢学习中文。",
+            "fast": [
+              13575,
+              2886,
+              21116,
+              9,
+              0
+            ],
+            "reference": [
+              13575,
+              2886,
+              21116,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "I like learning Chinese.",
+        "argosMs": 61
+      },
+      {
+        "id": "learning-traditional",
+        "kind": "sentence",
+        "input": "我喜歡學習中文。",
+        "referenceMeaning": "I like learning Chinese.",
+        "current": "I like learning Chinese.",
+        "currentMs": 150,
+        "marianReference": "I like learning Chinese.",
+        "marianReferenceMs": 151,
+        "tokenDifferences": [
+          {
+            "text": "我喜欢学习中文。",
+            "fast": [
+              13575,
+              2886,
+              21116,
+              9,
+              0
+            ],
+            "reference": [
+              13575,
+              2886,
+              21116,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "I like learning Chinese.",
+        "argosMs": 77
+      },
+      {
+        "id": "station",
+        "kind": "sentence",
+        "input": "请问，最近的火车站在哪里？",
+        "referenceMeaning": "Excuse me, where is the nearest train station?",
+        "current": "Excuse me, where's the nearest train station?",
+        "currentMs": 301,
+        "marianReference": "Excuse me, where's the nearest train station?",
+        "marianReferenceMs": 253,
+        "tokenDifferences": [
+          {
+            "text": "请问，最近的火车站在哪里？",
+            "fast": [
+              36989,
+              2,
+              8794,
+              20842,
+              2936,
+              7430,
+              23,
+              0
+            ],
+            "reference": [
+              36989,
+              2,
+              8794,
+              20842,
+              2936,
+              7430,
+              23,
+              0
+            ]
+          }
+        ],
+        "argos": "Excuse me, where's the nearest train station?",
+        "argosMs": 96
+      },
+      {
+        "id": "negation",
+        "kind": "sentence",
+        "input": "我不是不想去，只是今天没有时间。",
+        "referenceMeaning": "It is not that I do not want to go; I just do not have time today.",
+        "current": "I don't want to go, just don't have time for this.",
+        "currentMs": 738,
+        "marianReference": "I don't want to go, just don't have time for this.",
+        "marianReferenceMs": 435,
+        "tokenDifferences": [
+          {
+            "text": "我不是不想去，只是今天没有时间。",
+            "fast": [
+              8211,
+              6194,
+              605,
+              2,
+              2532,
+              2847,
+              311,
+              1056,
+              9,
+              0
+            ],
+            "reference": [
+              8211,
+              6194,
+              605,
+              2,
+              2532,
+              2847,
+              311,
+              1056,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "I don't want to go, just no time today.",
+        "argosMs": 146
+      },
+      {
+        "id": "not-yet",
+        "kind": "sentence",
+        "input": "我还没吃饭。",
+        "referenceMeaning": "I have not eaten yet.",
+        "current": "I haven't eaten yet.",
+        "currentMs": 235,
+        "marianReference": "I haven't eaten yet.",
+        "marianReferenceMs": 268,
+        "tokenDifferences": [
+          {
+            "text": "我还没吃饭。",
+            "fast": [
+              103,
+              9794,
+              21898,
+              9,
+              0
+            ],
+            "reference": [
+              103,
+              9794,
+              21898,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "I haven't eaten yet.",
+        "argosMs": 78
+      },
+      {
+        "id": "missed-message",
+        "kind": "sentence",
+        "input": "不好意思，我刚才没看到你的消息。",
+        "referenceMeaning": "Sorry, I did not see your message earlier.",
+        "current": "Sorry, I didn't hear from you.",
+        "currentMs": 260,
+        "marianReference": "Sorry, I didn't hear from you.",
+        "marianReferenceMs": 357,
+        "tokenDifferences": [
+          {
+            "text": "不好意思，我刚才没看到你的消息。",
+            "fast": [
+              15446,
+              2,
+              33077,
+              44121,
+              146,
+              16460,
+              9,
+              0
+            ],
+            "reference": [
+              15446,
+              2,
+              33077,
+              44121,
+              146,
+              16460,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "Sorry, I didn't see your message.",
+        "argosMs": 112
+      },
+      {
+        "id": "refund",
+        "kind": "sentence",
+        "input": "如果明天还没收到退款，请联系客服。",
+        "referenceMeaning": "If you still have not received the refund tomorrow, please contact customer service.",
+        "current": "If you don't get a refund tomorrow, please contact the customer service.",
+        "currentMs": 464,
+        "marianReference": "If you don't get a refund tomorrow, please contact the customer service.",
+        "marianReferenceMs": 463,
+        "tokenDifferences": [
+          {
+            "text": "如果明天还没收到退款，请联系客服。",
+            "fast": [
+              968,
+              8455,
+              9794,
+              2245,
+              6591,
+              546,
+              2,
+              965,
+              2046,
+              7390,
+              6534,
+              9,
+              0
+            ],
+            "reference": [
+              968,
+              8455,
+              9794,
+              2245,
+              6591,
+              546,
+              2,
+              965,
+              2046,
+              7390,
+              6534,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "If you haven't received a refund tomorrow, please contact the customer service.",
+        "argosMs": 178
+      },
+      {
+        "id": "look-after",
+        "kind": "sentence",
+        "input": "请帮我看一下孩子，我去拿个快递。",
+        "referenceMeaning": "Please watch the child for me while I go pick up a delivery.",
+        "current": "Please, check the kids out. I'll get a delivery.",
+        "currentMs": 434,
+        "marianReference": "Please, check the kids out. I'll get a delivery.",
+        "marianReferenceMs": 357,
+        "tokenDifferences": [
+          {
+            "text": "请帮我看一下孩子，我去拿个快递。",
+            "fast": [
+              1307,
+              9307,
+              31620,
+              2908,
+              2,
+              121,
+              24324,
+              255,
+              2454,
+              19153,
+              9,
+              0
+            ],
+            "reference": [
+              1307,
+              9307,
+              31620,
+              2908,
+              2,
+              121,
+              24324,
+              255,
+              2454,
+              19153,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "I'll get a delivery.",
+        "argosMs": 127
+      },
+      {
+        "id": "look-read",
+        "kind": "sentence",
+        "input": "这本书我看过了，你拿去看吧。",
+        "referenceMeaning": "I have already read this book; take it and read it.",
+        "current": "I've read this book. Take it.",
+        "currentMs": 354,
+        "marianReference": "I've read this book. Take it.",
+        "marianReferenceMs": 287,
+        "tokenDifferences": [
+          {
+            "text": "这本书我看过了，你拿去看吧。",
+            "fast": [
+              7,
+              46998,
+              121,
+              20724,
+              55,
+              2,
+              146,
+              3270,
+              18886,
+              499,
+              9,
+              0
+            ],
+            "reference": [
+              7,
+              46998,
+              121,
+              20724,
+              55,
+              2,
+              146,
+              3270,
+              18886,
+              499,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "I've read this book. Take it.",
+        "argosMs": 111
+      },
+      {
+        "id": "bank-direction",
+        "kind": "sentence",
+        "input": "银行在路口的右边。",
+        "referenceMeaning": "The bank is on the right side of the intersection.",
+        "current": "The bank's on the right at the intersection.",
+        "currentMs": 254,
+        "marianReference": "The bank's on the right at the intersection.",
+        "marianReferenceMs": 301,
+        "tokenDifferences": [
+          {
+            "text": "银行在路口的右边。",
+            "fast": [
+              7,
+              2307,
+              36,
+              2668,
+              2714,
+              11,
+              41602,
+              9,
+              0
+            ],
+            "reference": [
+              7,
+              2307,
+              36,
+              2668,
+              2714,
+              11,
+              41602,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "The bank's on the right.",
+        "argosMs": 102
+      },
+      {
+        "id": "research-life",
+        "kind": "sentence",
+        "input": "他正在研究生命的起源。",
+        "referenceMeaning": "He is researching the origin of life.",
+        "current": "He's studying the origins of life.",
+        "currentMs": 260,
+        "marianReference": "He's studying the origins of life.",
+        "marianReferenceMs": 307,
+        "tokenDifferences": [
+          {
+            "text": "他正在研究生命的起源。",
+            "fast": [
+              318,
+              729,
+              751,
+              4071,
+              11,
+              28333,
+              9,
+              0
+            ],
+            "reference": [
+              318,
+              729,
+              751,
+              4071,
+              11,
+              28333,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "He's studying the origins of life.",
+        "argosMs": 80
+      },
+      {
+        "id": "cannot-make-it",
+        "kind": "sentence",
+        "input": "我今天实在走不开，我们改天再约吧。",
+        "referenceMeaning": "I really cannot get away today; let us meet another day.",
+        "current": "I can't leave today. We'll see you later.",
+        "currentMs": 479,
+        "marianReference": "I can't leave today. We'll see you later.",
+        "marianReferenceMs": 346,
+        "tokenDifferences": [
+          {
+            "text": "我今天实在走不开，我们改天再约吧。",
+            "fast": [
+              28443,
+              16618,
+              1356,
+              155,
+              1795,
+              2,
+              230,
+              5781,
+              1196,
+              1236,
+              2136,
+              499,
+              9,
+              0
+            ],
+            "reference": [
+              28443,
+              16618,
+              1356,
+              155,
+              1795,
+              2,
+              230,
+              5781,
+              1196,
+              1236,
+              2136,
+              499,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "I can't leave today. We'll meet again.",
+        "argosMs": 172
+      },
+      {
+        "id": "casual-subtitle",
+        "kind": "sentence",
+        "input": "算了吧，别再折腾了。",
+        "referenceMeaning": "Forget it; stop making a fuss.",
+        "current": "Forget it. Stop messing around.",
+        "currentMs": 218,
+        "marianReference": "Forget it. Stop messing around.",
+        "marianReferenceMs": 171,
+        "tokenDifferences": [
+          {
+            "text": "算了吧，别再折腾了。",
+            "fast": [
+              23867,
+              499,
+              2,
+              23215,
+              12483,
+              37790,
+              55,
+              9,
+              0
+            ],
+            "reference": [
+              23867,
+              499,
+              2,
+              23215,
+              12483,
+              37790,
+              55,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "Forget it. Stop messing around.",
+        "argosMs": 86
+      },
+      {
+        "id": "mixed-app",
+        "kind": "sentence",
+        "input": "这个 APP 可以离线翻译，不需要付费。",
+        "referenceMeaning": "This app can translate offline and does not require payment.",
+        "current": "APP can be translated offline without charge.",
+        "currentMs": 245,
+        "marianReference": "This APP can be offline, without charge.",
+        "marianReferenceMs": 304,
+        "tokenDifferences": [
+          {
+            "text": "这个 APP 可以离线翻译，不需要付费。",
+            "fast": [
+              3117,
+              78,
+              19231,
+              5233,
+              3877,
+              2970,
+              7925,
+              2,
+              8052,
+              36927,
+              9,
+              0
+            ],
+            "reference": [
+              3117,
+              7,
+              7288,
+              556,
+              5233,
+              3877,
+              2970,
+              7925,
+              2,
+              8052,
+              36927,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "This APP can be de-translated without paying.",
+        "argosMs": 122
+      },
+      {
+        "id": "amount-date",
+        "kind": "sentence",
+        "input": "订单金额是128.50元，请在10月18日前付款。",
+        "referenceMeaning": "The order total is 128.50 yuan; please pay before October 18.",
+        "current": "The order was for $128.50, which is due by 18 October.",
+        "currentMs": 338,
+        "marianReference": "The order was for $128.50, which is due by 18 October.",
+        "marianReferenceMs": 304,
+        "tokenDifferences": [
+          {
+            "text": "订单金额是128.50元，请在10月18日前付款。",
+            "fast": [
+              7,
+              36157,
+              8850,
+              69,
+              17611,
+              5,
+              1472,
+              5731,
+              2,
+              965,
+              36,
+              185,
+              41,
+              532,
+              16105,
+              4412,
+              9,
+              0
+            ],
+            "reference": [
+              7,
+              36157,
+              8850,
+              69,
+              157,
+              3029,
+              1472,
+              5731,
+              2,
+              965,
+              36,
+              185,
+              41,
+              532,
+              16105,
+              4412,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "The value of the order is $128.50, which is to be paid by 18 October.",
+        "argosMs": 166
+      },
+      {
+        "id": "traditional-interface",
+        "kind": "sentence",
+        "input": "無法連線，請檢查網路設定後再試一次。",
+        "referenceMeaning": "Unable to connect. Please check the network settings and try again.",
+        "current": "If you cannot connect, check the network setup and try again.",
+        "currentMs": 363,
+        "marianReference": "If you cannot connect, check the network setup and try again.",
+        "marianReferenceMs": 313,
+        "tokenDifferences": [
+          {
+            "text": "无法连线，请检查网路设定后再试一次。",
+            "fast": [
+              7,
+              1102,
+              3826,
+              2970,
+              2,
+              965,
+              2544,
+              3009,
+              2668,
+              8994,
+              378,
+              1236,
+              9312,
+              1890,
+              9,
+              0
+            ],
+            "reference": [
+              7,
+              1102,
+              3826,
+              2970,
+              2,
+              965,
+              2544,
+              3009,
+              2668,
+              8994,
+              378,
+              1236,
+              9312,
+              1890,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "Could not close temporary folder: %s",
+        "argosMs": 132
+      },
+      {
+        "id": "context-paragraph",
+        "kind": "passage",
+        "input": "我昨天去银行办了张新卡。工作人员说，要等三个工作日才能收到。",
+        "referenceMeaning": "I went to the bank yesterday to get a new card. The staff said it would take three working days to arrive.",
+        "current": "I went to the bank yesterday to get a new card. Staff members said that they would have to wait three working days before receiving them.",
+        "currentMs": 635,
+        "marianReference": "I went to the bank yesterday to get a new card. Staff members said that they would have to wait three working days before receiving them.",
+        "marianReferenceMs": 762,
+        "tokenDifferences": [
+          {
+            "text": "我昨天去银行办了张新卡。",
+            "fast": [
+              103,
+              13249,
+              605,
+              2307,
+              5195,
+              55,
+              7627,
+              636,
+              1349,
+              9,
+              0
+            ],
+            "reference": [
+              103,
+              13249,
+              605,
+              2307,
+              5195,
+              55,
+              7627,
+              636,
+              1349,
+              9,
+              0
+            ]
+          },
+          {
+            "text": "工作人员说，要等三个工作日才能收到。",
+            "fast": [
+              7,
+              797,
+              300,
+              2,
+              342,
+              408,
+              1222,
+              23987,
+              2590,
+              2245,
+              9,
+              0
+            ],
+            "reference": [
+              7,
+              797,
+              300,
+              2,
+              342,
+              408,
+              1222,
+              23987,
+              2590,
+              2245,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "I went to the bank yesterday to get a new card. Staff stated that three working days were required for receipt.",
+        "argosMs": 229
+      },
+      {
+        "id": "ambiguous-title",
+        "kind": "phrase",
+        "input": "北美生活必看！超全店铺和APP盘点",
+        "referenceMeaning": "A must-read for life in North America: a comprehensive roundup of stores and apps.",
+        "current": "Life in North America is a big deal! Super-store and APP count.",
+        "currentMs": 481,
+        "marianReference": "Life in North America is a big deal! Super-store and AP inventory.",
+        "marianReferenceMs": 456,
+        "tokenDifferences": [
+          {
+            "text": "北美生活必看！",
+            "fast": [
+              7,
+              22345,
+              1950,
+              9402,
+              1473,
+              48,
+              0
+            ],
+            "reference": [
+              7,
+              22345,
+              1950,
+              9402,
+              1473,
+              48,
+              0
+            ]
+          },
+          {
+            "text": "超全店铺和APP盘点",
+            "fast": [
+              7,
+              5427,
+              2353,
+              8294,
+              19079,
+              16,
+              81,
+              19231,
+              9060,
+              1005,
+              0
+            ],
+            "reference": [
+              7,
+              5427,
+              2353,
+              8294,
+              19079,
+              16,
+              7288,
+              556,
+              9060,
+              1005,
+              0
+            ]
+          }
+        ],
+        "argos": "North America must look at it! Super shop and APP count",
+        "argosMs": 147
+      },
+      {
+        "id": "idiom",
+        "kind": "sentence",
+        "input": "别担心，我们一步一步来。",
+        "referenceMeaning": "Do not worry; we will take it one step at a time.",
+        "current": "Don't worry, we'll take it one step at a time.",
+        "currentMs": 324,
+        "marianReference": "Don't worry, we'll take it one step at a time.",
+        "marianReferenceMs": 413,
+        "tokenDifferences": [
+          {
+            "text": "别担心，我们一步一步来。",
+            "fast": [
+              21556,
+              2,
+              230,
+              10015,
+              10015,
+              272,
+              9,
+              0
+            ],
+            "reference": [
+              21556,
+              2,
+              230,
+              10015,
+              10015,
+              272,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "Don't worry, let's step by step.",
+        "argosMs": 157
+      },
+      {
+        "id": "technical",
+        "kind": "sentence",
+        "input": "更新完成后，请退出程序并重新启动。",
+        "referenceMeaning": "After the update is complete, please quit the program and restart it.",
+        "current": "After the update is completed, please exit the program and restart.",
+        "currentMs": 271,
+        "marianReference": "After the update is completed, please exit the program and restart.",
+        "marianReferenceMs": 297,
+        "tokenDifferences": [
+          {
+            "text": "更新完成后，请退出程序并重新启动。",
+            "fast": [
+              7,
+              3957,
+              1148,
+              378,
+              2,
+              965,
+              11137,
+              777,
+              91,
+              42635,
+              9,
+              0
+            ],
+            "reference": [
+              7,
+              3957,
+              1148,
+              378,
+              2,
+              965,
+              11137,
+              777,
+              91,
+              42635,
+              9,
+              0
+            ]
+          }
+        ],
+        "argos": "Upon completion of the update, please exit the program and restart.",
+        "argosMs": 137
+      },
+      {
+        "id": "food-allergy",
+        "kind": "sentence",
+        "input": "我对花生过敏，这道菜里面有花生吗？",
+        "referenceMeaning": "I am allergic to peanuts. Does this dish contain peanuts?",
+        "current": "I'm allergic to peanuts. Is there peanuts in this dish?",
+        "currentMs": 430,
+        "marianReference": "I'm allergic to peanuts. Is there peanuts in this dish?",
+        "marianReferenceMs": 311,
+        "tokenDifferences": [
+          {
+            "text": "我对花生过敏，这道菜里面有花生吗？",
+            "fast": [
+              103,
+              63,
+              3565,
+              1592,
+              886,
+              20338,
+              2,
+              521,
+              2635,
+              12993,
+              10272,
+              123,
+              3565,
+              1592,
+              338,
+              23,
+              0
+            ],
+            "reference": [
+              103,
+              63,
+              3565,
+              1592,
+              886,
+              20338,
+              2,
+              521,
+              2635,
+              12993,
+              10272,
+              123,
+              3565,
+              1592,
+              338,
+              23,
+              0
+            ]
+          }
+        ],
+        "argos": "I'm allergic to peanuts. Are there peanuts in this dish?",
+        "argosMs": 155
+      }
+    ],
+    "limitations": "Diagnostic, manually authored cases; not a representative quality score. All engines use app OpenCC normalization/chunks. Reference tokenizer timings exclude Python encoding/decoding. Argos backend uses beam 4 versus OPUS beam 1; this affects speed and quality.",
+    "versions": {
+      "ctranslate2": "4.6.0",
+      "sentencepiece": "0.2.1",
+      "transformers": "4.57.1"
+    },
+    "model": {
+      "model": "Xenova/opus-mt-zh-en",
+      "revision": "39d480d52a9ea3065a1f117adfe4dbc55de10e6f",
+      "license": "cc-by-4.0",
+      "licenseSource": {
+        "license": "cc-by-4.0",
+        "repository": "Helsinki-NLP/opus-mt-zh-en",
+        "revision": "cf109095479db38d6df799875e34039d4938aaa6"
+      }
+    },
+    "onnx": {
+      "warmMs": 1093,
+      "processRssMB": 600
+    },
+    "argos": {
+      "label": "Argos zh-en 1.9 CTranslate2 backend (not hosted LibreTranslate)",
+      "indexSha256": "a65ae909a97ddc89a01cbf0596932dc6415df9815a11d85fe8240b367926b7b0",
+      "packageSha256": "62e7af5a3a48b530e47b7b3e5c78c2de79073ecd815750d2bf3ab35b4a67da2d",
+      "source": {
+        "package_version": "1.9",
+        "argos_version": "1.9.0",
+        "from_code": "zh",
+        "from_name": "Chinese",
+        "to_code": "en",
+        "to_name": "English",
+        "links": [
+          "https://argos-net.com/v1/translate-zh_en-1_9.argosmodel"
+        ],
+        "code": "translate-zh_en"
+      },
+      "metadata": {
+        "package_version": "1.9",
+        "argos_version": "1.9.0",
+        "from_code": "zh",
+        "from_name": "Chinese",
+        "to_code": "en",
+        "to_name": "English"
+      },
+      "licenses": {
+        "README.md": "# Chinese - English version 1.9\n\nAuthors: Jörg Tiedemann and Santhosh Thottingal\nTitle: \"OPUS-MT — Building open translation services for the World\"\nBook Title: Proceedings of the 22nd Annual Conference of the European Association for Machine Translation (EAMT)\nYear: 2020\nLocation: Lisbon, Portugal\n\nThe original OPUS model from which this packaged model is derived is licensed CC-BY 4.0\n\n"
+      },
+      "downloadBytes": 74481402,
+      "warmMs": 226,
+      "processRssMB": 208,
+      "results": [
+        {
+          "id": "word-social",
+          "text": "Communication",
+          "elapsedMs": 29
+        },
+        {
+          "id": "word-social-traditional",
+          "text": "Communication",
+          "elapsedMs": 31
+        },
+        {
+          "id": "word-bank",
+          "text": "Bank",
+          "elapsedMs": 24
+        },
+        {
+          "id": "word-ability",
+          "text": "Capacity",
+          "elapsedMs": 26
+        },
+        {
+          "id": "word-program",
+          "text": "Procedures",
+          "elapsedMs": 24
+        },
+        {
+          "id": "social-ability",
+          "text": "Communication",
+          "elapsedMs": 26
+        },
+        {
+          "id": "social-sentence",
+          "text": "He's good at communication.",
+          "elapsedMs": 82
+        },
+        {
+          "id": "social-contrast",
+          "text": "She works very well, but not very well.",
+          "elapsedMs": 128
+        },
+        {
+          "id": "greeting",
+          "text": "Hello, world.",
+          "elapsedMs": 47
+        },
+        {
+          "id": "learning",
+          "text": "I like learning Chinese.",
+          "elapsedMs": 61
+        },
+        {
+          "id": "learning-traditional",
+          "text": "I like learning Chinese.",
+          "elapsedMs": 77
+        },
+        {
+          "id": "station",
+          "text": "Excuse me, where's the nearest train station?",
+          "elapsedMs": 96
+        },
+        {
+          "id": "negation",
+          "text": "I don't want to go, just no time today.",
+          "elapsedMs": 146
+        },
+        {
+          "id": "not-yet",
+          "text": "I haven't eaten yet.",
+          "elapsedMs": 78
+        },
+        {
+          "id": "missed-message",
+          "text": "Sorry, I didn't see your message.",
+          "elapsedMs": 112
+        },
+        {
+          "id": "refund",
+          "text": "If you haven't received a refund tomorrow, please contact the customer service.",
+          "elapsedMs": 178
+        },
+        {
+          "id": "look-after",
+          "text": "I'll get a delivery.",
+          "elapsedMs": 127
+        },
+        {
+          "id": "look-read",
+          "text": "I've read this book. Take it.",
+          "elapsedMs": 111
+        },
+        {
+          "id": "bank-direction",
+          "text": "The bank's on the right.",
+          "elapsedMs": 102
+        },
+        {
+          "id": "research-life",
+          "text": "He's studying the origins of life.",
+          "elapsedMs": 80
+        },
+        {
+          "id": "cannot-make-it",
+          "text": "I can't leave today. We'll meet again.",
+          "elapsedMs": 172
+        },
+        {
+          "id": "casual-subtitle",
+          "text": "Forget it. Stop messing around.",
+          "elapsedMs": 86
+        },
+        {
+          "id": "mixed-app",
+          "text": "This APP can be de-translated without paying.",
+          "elapsedMs": 122
+        },
+        {
+          "id": "amount-date",
+          "text": "The value of the order is $128.50, which is to be paid by 18 October.",
+          "elapsedMs": 166
+        },
+        {
+          "id": "traditional-interface",
+          "text": "Could not close temporary folder: %s",
+          "elapsedMs": 132
+        },
+        {
+          "id": "context-paragraph",
+          "text": "I went to the bank yesterday to get a new card. Staff stated that three working days were required for receipt.",
+          "elapsedMs": 229
+        },
+        {
+          "id": "ambiguous-title",
+          "text": "North America must look at it! Super shop and APP count",
+          "elapsedMs": 147
+        },
+        {
+          "id": "idiom",
+          "text": "Don't worry, let's step by step.",
+          "elapsedMs": 157
+        },
+        {
+          "id": "technical",
+          "text": "Upon completion of the update, please exit the program and restart.",
+          "elapsedMs": 137
+        },
+        {
+          "id": "food-allergy",
+          "text": "I'm allergic to peanuts. Are there peanuts in this dish?",
+          "elapsedMs": 155
+        }
+      ]
+    }
+  }
+}

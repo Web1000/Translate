@@ -52,8 +52,9 @@ test('shortcuts produce only a compact popup; settings, capture, errors and pers
       selection.readSelection = async options => {
         if (BrowserWindow.getAllWindows().some(window => window.isVisible())) throw new Error('A Hanzi Lens window stole the source selection focus.');
         return realReadSelection({ ...options, platform: 'win32', execute: async () => {
-          await clipboard.writeText('學習中文');
-          return { stdout: JSON.stringify({ text: '學習中文', usedClipboard: true }) };
+          const text = globalThis.selectionTestText || '學習中文';
+          await clipboard.writeText(text);
+          return { stdout: JSON.stringify({ text, usedClipboard: true }) };
         } });
       };
       require(`${app.getAppPath()}/src/main.cjs`).savePreferences({ selectionEnabled: true, captureEnabled: true });
@@ -98,6 +99,35 @@ test('shortcuts produce only a compact popup; settings, capture, errors and pers
     await assert.rejects(page.evaluate(() => window.hanzi.saveSettings({ selectionShortcut: 'Control+Alt+X' })), /Shortcut unavailable/);
     assert.equal((await page.evaluate(() => window.hanzi.settings())).selectionShortcut, 'Control+Shift+D');
     assert.equal(await application.evaluate(() => globalThis.callbacks.has('Control+Shift+D')), true);
+    // A real word lookup never invokes the sentence engine, even when enabled
+    // with an installed pack or retried through the exposed local IPC method.
+    await application.evaluate(async ({ app, BrowserWindow }) => {
+      const require = process.getBuiltinModule('node:module').createRequire(`${app.getAppPath()}/package.json`);
+      const { LocalTranslator } = require(`${app.getAppPath()}/src/local-translator.cjs`);
+      const translate = LocalTranslator.prototype.translate;
+      globalThis.wordGenerationCalls = 0;
+      LocalTranslator.prototype.translate = function(text) {
+        if (/^交[际際][。！]?$/u.test(text.trim())) {
+          globalThis.wordGenerationCalls++;
+          throw new Error('Single words must not reach sentence generation.');
+        }
+        return translate.call(this, text);
+      };
+      globalThis.selectionTestText = '交际';
+      BrowserWindow.getAllWindows().forEach(window => window.hide());
+      await globalThis.callbacks.get('Control+Shift+D')();
+    });
+    await popup.waitForFunction(() => document.getElementById('sentence-status').textContent === 'Dictionary lookup');
+    assert.match(await popup.locator('#definitions').innerText(), /social|communication|intercourse/i);
+    assert.equal(await popup.locator('#translation').isVisible(), false);
+    assert.equal(await popup.locator('#translation-settings').isVisible(), false);
+    if (process.env.ELECTRON_TEST_LANGUAGE_PACK) {
+      const wordId = await popup.evaluate(async () => (await window.hanzi.result()).id);
+      await popup.evaluate(id => window.hanzi.offlineTranslate(id), wordId);
+      await page.evaluate(() => window.hanzi.saveSettings({ offlineTranslationEnabled: false }));
+      await page.evaluate(() => window.hanzi.saveSettings({ offlineTranslationEnabled: true }));
+    }
+    assert.equal(await application.evaluate(() => globalThis.wordGenerationCalls), 0);
     // Failed selection stays in the popup rather than opening Settings.
     await application.evaluate(async ({ app }) => {
       const require = process.getBuiltinModule('node:module').createRequire(`${app.getAppPath()}/package.json`);
