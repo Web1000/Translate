@@ -7,7 +7,14 @@ function translationChunks(text, limit = 160) {
   const lines = text.trim().replace(/\r\n?/g, '\n').split(/(\n+)/);
   for (const line of lines) {
     if (/^\n+$/.test(line)) { if (chunks.length) chunks.at(-1).separator = '\n'; continue; }
-    const sentences = line.match(/[^。！？.!?]+[。！？.!?]*|[。！？.!?]+/gu) || [];
+    const sentences = [];
+    let start = 0;
+    // A decimal point is part of its number, not a sentence boundary.
+    for (const boundary of line.matchAll(/[。！？!?]+|\.(?!\d)/gu)) {
+      const end = boundary.index + boundary[0].length;
+      sentences.push(line.slice(start, end)); start = end;
+    }
+    if (start < line.length) sentences.push(line.slice(start));
     for (const sentence of sentences) {
       let remaining = [...sentence.trim()];
       while (remaining.length) {

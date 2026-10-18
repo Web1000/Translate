@@ -26,11 +26,12 @@ def read_json(path):
     return json.loads(Path(path).read_text(encoding='utf-8'))
 
 
-def download(url, path, limit=1024 * 1024 * 1024):
+def download(url, path, limit=1024 * 1024 * 1024, user_agent=None):
     if not url.startswith('https://'):
         raise ValueError('HTTPS required')
     path.parent.mkdir(parents=True, exist_ok=True)
-    with urllib.request.urlopen(url, timeout=180) as response, path.open('wb') as target:
+    request = urllib.request.Request(url, headers={'User-Agent': user_agent} if user_agent else {})
+    with urllib.request.urlopen(request, timeout=180) as response, path.open('wb') as target:
         if not response.url.startswith('https://'):
             raise ValueError('HTTPS redirect required')
         size = 0
@@ -73,7 +74,8 @@ def evaluate_argos(cases):
     index_sha = download('https://raw.githubusercontent.com/argosopentech/argospm-index/main/index.json', index, 4 * 1024 * 1024)
     entry = next(item for item in read_json(index) if item.get('from_code') == 'zh' and item.get('to_code') == 'en' and item.get('package_version') == '1.9')
     archive = OUT / 'zh-en.argosmodel'
-    package_sha = download(entry['links'][0], archive)
+    # Match the supported upstream client protocol (argostranslate.networking).
+    package_sha = download(entry['links'][0], archive, user_agent='ArgosTranslate')
     extracted = OUT / 'argos'
     with zipfile.ZipFile(archive) as bundle:
         total = 0

@@ -148,3 +148,19 @@ test('language-pack controls expose progress and popup ignores outdated sentence
     assert.equal(await popup.locator('#translation').innerText(), 'Hello.');
   } finally { await browser.close(); }
 });
+
+test('recognized single-word lookup needs neither a language pack nor generated translation', async () => {
+  const browser = await chromium.launch({ ...options, headless: true });
+  try {
+    const dictionary = parseDictionary(require('cedict-json'));
+    const data = { id: 1, status: 'ready', lookupMode: 'word', text: '交际', tokens: lookup(dictionary, '交际'), source: 'selection', preferences: { ...defaults, offlineTranslationEnabled: true }, localTranslation: { installed: false, engine: 'idle' } };
+    const page = await browser.newPage();
+    await page.addInitScript(data => { window.hanzi = { result: async () => data, onResult: callback => { window.receiveResult = callback; } }; }, data);
+    await load(page, 'popup.html'); await page.locator('#result').waitFor({ state: 'visible' });
+    assert.match(await page.locator('#definitions').innerText(), /social|communication|intercourse/i);
+    assert.equal(await page.locator('#translation').isVisible(), false);
+    assert.equal(await page.locator('#translation-settings').isVisible(), false);
+    assert.equal(await page.locator('#offline-retry').isVisible(), false);
+    assert.equal(await page.locator('#sentence-status').innerText(), 'Dictionary lookup');
+  } finally { await browser.close(); }
+});
