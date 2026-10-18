@@ -81,8 +81,9 @@ function render(data) {
   $('translation').hidden = !data.translation;
   const local = data.localTranslation || { installed: false, engine: 'idle' };
   $('sentence-status').textContent = data.translationStatus === 'loading' ? local.engine === 'loading' && data.translationSource === 'offline' ? 'Loading offline translation…' : 'Translating…' : data.translationStatus === 'error' ? data.translationError : data.translation ? 'On-device translation' : '';
-  $('translation-settings').hidden = Boolean(local.installed && prefs.offlineTranslationEnabled);
-  $('offline-retry').hidden = !(local.installed && prefs.offlineTranslationEnabled && data.translationStatus === 'error');
+  if (data.lookupMode === 'word') $('sentence-status').textContent = 'Dictionary lookup';
+  $('translation-settings').hidden = data.lookupMode === 'word' || Boolean(local.installed && prefs.offlineTranslationEnabled);
+  $('offline-retry').hidden = data.lookupMode === 'word' || !(local.installed && prefs.offlineTranslationEnabled && data.translationStatus === 'error');
   $('lookup-note').textContent = matches ? 'Dictionary meanings' : 'No dictionary matches.';
   updateSpeech();
 }
