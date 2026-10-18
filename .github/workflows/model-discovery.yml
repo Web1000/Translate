@@ -5,6 +5,7 @@ on:
     paths: [.github/workflows/model-discovery.yml]
 permissions:
   contents: write
+  actions: read
 jobs:
   inspect:
     runs-on: ubuntu-latest
@@ -20,9 +21,9 @@ jobs:
             'google_source': 'https://huggingface.co/api/models/google/madlad400-3b-mt?blobs=true',
             'jbochi_source': 'https://huggingface.co/api/models/jbochi/madlad400-3b-mt?blobs=true',
             'xenova_conversion': 'https://huggingface.co/api/models/Xenova/madlad400-3b-mt?blobs=true',
-            'community_conversion': 'https://huggingface.co/api/models/onnx-community/madlad400-3b-mt?blobs=true'
-            , 'bilingual_candidates': 'https://huggingface.co/api/models?search=opus-mt-tc-big-zh-en&filter=onnx&limit=20&full=true&cardData=true'
-            , 'bilingual_source': 'https://huggingface.co/api/models/Helsinki-NLP/opus-mt-tc-big-zh-en?blobs=true'
+            'community_conversion': 'https://huggingface.co/api/models/onnx-community/madlad400-3b-mt?blobs=true',
+            'bilingual_candidates': 'https://huggingface.co/api/models?search=opus-mt-tc-big-zh-en&filter=onnx&limit=20&full=true&cardData=true',
+            'bilingual_source': 'https://huggingface.co/api/models/Helsinki-NLP/opus-mt-tc-big-zh-en?blobs=true'
           }
           report = {}
           for key, url in endpoints.items():
@@ -35,10 +36,26 @@ jobs:
             json.dump(report, target, indent=2, ensure_ascii=False)
           print(json.dumps({key: value['status'] for key, value in report.items()}))
           PY
+      - name: Inspect current research jobs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run list --workflow translation-quality.yml --limit 3 --json databaseId,headSha,status,conclusion,url > research-runs.json
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          runs = json.loads(Path('research-runs.json').read_text())
+          for run in runs:
+            result = subprocess.run(['gh', 'run', 'view', str(run['databaseId']), '--json', 'jobs,status,conclusion,url'], check=True, capture_output=True, text=True)
+            run['details'] = json.loads(result.stdout)
+          Path('research-runs.json').write_text(json.dumps(runs, indent=2), encoding='utf-8')
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: model-metadata
-          path: model-metadata.json
+          path: |
+            model-metadata.json
+            research-runs.json
       - name: Record metadata for cloud inspection
         run: |
           branch=codex-validation-model-discovery
@@ -46,6 +63,6 @@ jobs:
           git switch --orphan "$branch"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add model-metadata.json
+          git add model-metadata.json research-runs.json
           git commit -m "Record translation model metadata for $GITHUB_SHA"
           git push origin "HEAD:refs/heads/$branch" "--force-with-lease=refs/heads/$branch:$expected"
