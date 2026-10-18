@@ -1,5 +1,6 @@
 name: Translation model metadata
 on:
+  workflow_dispatch:
   push:
     branches: [offline-translation]
     paths: [.github/workflows/model-discovery.yml]
@@ -36,26 +37,29 @@ jobs:
             json.dump(report, target, indent=2, ensure_ascii=False)
           print(json.dumps({key: value['status'] for key, value in report.items()}))
           PY
-      - name: Inspect current research jobs
+      - name: Inspect current research and desktop jobs
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run list --workflow translation-quality.yml --limit 3 --json databaseId,headSha,status,conclusion,url > research-runs.json
           python - <<'PY'
           import json, subprocess
           from pathlib import Path
-          runs = json.loads(Path('research-runs.json').read_text())
-          for run in runs:
-            result = subprocess.run(['gh', 'run', 'view', str(run['databaseId']), '--json', 'jobs,status,conclusion,url'], check=True, capture_output=True, text=True)
-            run['details'] = json.loads(result.stdout)
-          Path('research-runs.json').write_text(json.dumps(runs, indent=2), encoding='utf-8')
+          report = []
+          for workflow in ['translation-quality.yml', 'windows.yml']:
+            result = subprocess.run(['gh', 'run', 'list', '--workflow', workflow, '--limit', '3', '--json', 'databaseId,headSha,status,conclusion,url'], check=True, capture_output=True, text=True)
+            runs = json.loads(result.stdout)
+            for run in runs:
+              result = subprocess.run(['gh', 'run', 'view', str(run['databaseId']), '--json', 'jobs,status,conclusion,url'], check=True, capture_output=True, text=True)
+              run['details'] = json.loads(result.stdout)
+            report.append({'workflow': workflow, 'runs': runs})
+          Path('ci-runs.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
           PY
       - uses: actions/upload-artifact@v4
         with:
           name: model-metadata
           path: |
             model-metadata.json
-            research-runs.json
+            ci-runs.json
       - name: Record metadata for cloud inspection
         run: |
           branch=codex-validation-model-discovery
@@ -63,6 +67,6 @@ jobs:
           git switch --orphan "$branch"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add model-metadata.json research-runs.json
+          git add model-metadata.json ci-runs.json
           git commit -m "Record translation model metadata for $GITHUB_SHA"
           git push origin "HEAD:refs/heads/$branch" "--force-with-lease=refs/heads/$branch:$expected"
