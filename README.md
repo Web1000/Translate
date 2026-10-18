@@ -2,6 +2,8 @@
 
 A background Chinese reading companion with compact lookup popups. Inspired by HanziKey; this is an independent project, not an official Windows port.
 
+New to the project? Read [how the app works, from the beginning](docs/app-explained.md). To give Claude or another developer the project context, share [the standalone technical handoff](docs/claude-handoff.md).
+
 ## Download from GitHub
 
 Source: open [Web1000/Translate](https://github.com/Web1000/Translate), then **Code → Download ZIP**. Source downloads need the setup commands below; they do not include the compiled app or downloaded OCR models.
@@ -10,7 +12,7 @@ Windows app: open [Actions → Windows desktop](https://github.com/Web1000/Trans
 
 ## Try the Windows app
 
-Quit the previous version first (close its window or press Ctrl+C in the terminal that started it). Open `Hanzi Lens 0.3.0-beta.3.exe` from `dist/`. It is portable and unsigned; no Node.js installation is needed to use the executable.
+Quit the previous version first using **Quit Hanzi Lens** in its tray menu, or press Ctrl+C in the terminal that started it. Closing Settings alone keeps the app running. Open `Hanzi Lens 0.3.0-beta.3.exe` from `dist/`. It is portable and unsigned; no Node.js installation is needed to use the executable.
 
 The main window contains **settings only**. Close it when you are done; Hanzi Lens keeps running in the system tray. Reopen Settings from the tray icon, or use its **Quit Hanzi Lens** menu item to stop the app and release its shortcuts.
 
@@ -92,6 +94,14 @@ Validation coverage:
 In Linux cloud tasks, use `CHROMIUM_PATH=/usr/bin/chromium` for the browser/OCR tests. The Electron integration test can use `ELECTRON_TEST_HEADLESS=1 ELECTRON_TEST_NO_SANDBOX=1` and writable `XDG_CONFIG_HOME` / `XDG_CACHE_HOME`. Those overrides apply only to the restricted test container; the shipped app keeps its sandbox. `ELECTRON_APP_PATH` can point the integration test at an unpacked build.
 
 The Windows CI workflow includes the native checks, real-model checks, and a portable build. See VALIDATION.md for observed outcomes. Live Windows selection, tray behavior, global shortcuts, and monitor capture still need confirmation on a Windows desktop.
+
+### Testing while away from Windows
+
+The Windows workflow runs on code pushes, pull requests, or manual dispatch. It exercises the real model, OCR, native selection helper, source Electron app, and packaged Windows app. Results and successful executable artifacts appear under [Actions → Windows desktop](https://github.com/Web1000/Translate/actions/workflows/windows.yml). There is no weekly test schedule. Recurring development requires a separately configured coding-agent task; this workflow does not develop new features or improve translations automatically.
+
+Older desktop runs on the same branch are canceled when a newer one starts. Research-only model scripts and reports do not rebuild the app by themselves. Translation-quality experiments have a separate Windows workflow, keeping successful model execution distinct from correct English meaning.
+
+The [54-case Windows accuracy comparison](docs/translation-quality.md) includes OPUS, M2M100, and MADLAD with raw outputs and CPU/memory measurements. Neither tested replacement met the quality bar, so the shipped engine remains unchanged.
 
 ## Model validation
 

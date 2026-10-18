@@ -32,6 +32,8 @@ Keep Argos out of the release. Recognized dictionary words now skip generation e
 
 The current passage model remains limited. Replacing it with a larger permissively licensed local model needs a separate comparison of meaning preservation, CPU latency, memory and redistribution terms. No model can guarantee correct meanings, and a handful of passing greetings is insufficient quality evidence.
 
+The [subsequent 54-case Windows study](translation-quality.md) tested M2M100 and MADLAD int8 conversions, including larger-model costs and whole-passage controls. Both introduced serious regressions and were kept out of the app.
+
 ## Reproduce the research
 
 On Windows with Node 22 and Python 3.11:

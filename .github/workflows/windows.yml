@@ -1,5 +1,19 @@
 name: Windows desktop
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    paths-ignore:
+      - docs/**
+      - README.md
+      - VALIDATION.md
+      - .github/workflows/model-discovery.yml
+      - .github/workflows/translation-quality.yml
+      - scripts/evaluate-quality.cjs
+      - test/fixtures/translation-quality-cases.json
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  group: windows-desktop-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
