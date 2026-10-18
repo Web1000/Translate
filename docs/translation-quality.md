@@ -62,4 +62,4 @@ node --max-old-space-size=8192 scripts/evaluate-quality.cjs madlad
 
 Reports are written to `.cache/translation-quality/<candidate>/report.json`. Allow several gigabytes of free disk space and sufficient RAM for MADLAD. The workflow also supports manual dispatch and records source-bound reports on `codex-validation-quality-opus`, `codex-validation-quality-m2m100`, and `codex-validation-quality-madlad` for cloud inspection. Compare each report's source commit before combining it with another run.
 
-Research weights and dependencies are not added to the distributable EXE. The weekly Windows workflow tests the shipped app; it does not run all these larger-model experiments or automatically select a replacement.
+Research weights and dependencies are not added to the distributable EXE. The Windows workflow tests the shipped app on code changes or manual dispatch; it does not run all these larger-model experiments or automatically select a replacement. No recurring development task is configured by this workflow.

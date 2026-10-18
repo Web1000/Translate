@@ -95,7 +95,7 @@ The Windows CI workflow includes the native checks, real-model checks, and a por
 
 ### Testing while away from Windows
 
-The Windows workflow also runs automatically every Monday at 14:00 UTC on the default branch. It exercises the real model, OCR, native selection helper, source Electron app, and packaged Windows app. Results and successful executable artifacts appear under [Actions → Windows desktop](https://github.com/Web1000/Translate/actions/workflows/windows.yml). GitHub may delay scheduled runs; they require Actions and runner capacity to remain available. The schedule runs tests; it does not develop new features or change the app automatically.
+The Windows workflow runs on code pushes, pull requests, or manual dispatch. It exercises the real model, OCR, native selection helper, source Electron app, and packaged Windows app. Results and successful executable artifacts appear under [Actions → Windows desktop](https://github.com/Web1000/Translate/actions/workflows/windows.yml). There is no weekly test schedule. Recurring development requires a separately configured coding-agent task; this workflow does not develop new features or improve translations automatically.
 
 Older desktop runs on the same branch are canceled when a newer one starts. Research-only model scripts and reports do not rebuild the app by themselves. Translation-quality experiments have a separate Windows workflow, keeping successful model execution distinct from correct English meaning.
 
