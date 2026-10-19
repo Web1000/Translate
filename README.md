@@ -2,6 +2,8 @@
 
 A background Chinese reading companion with compact lookup popups. Inspired by HanziKey; this is an independent project, not an official Windows port.
 
+New to the project? Read [how the app works, from the beginning](docs/app-explained.md). To give Claude or another developer the project context, share [the standalone technical handoff](docs/claude-handoff.md).
+
 ## Download from GitHub
 
 Source: open [Web1000/Translate](https://github.com/Web1000/Translate), then **Code → Download ZIP**. Source downloads need the setup commands below; they do not include the compiled app or downloaded OCR models.
@@ -10,7 +12,7 @@ Windows app: open [Actions → Windows desktop](https://github.com/Web1000/Trans
 
 ## Try the Windows app
 
-Quit the previous version first (close its window or press Ctrl+C in the terminal that started it). Open `Hanzi Lens 0.3.0-beta.3.exe` from `dist/`. It is portable and unsigned; no Node.js installation is needed to use the executable.
+Quit the previous version first using **Quit Hanzi Lens** in its tray menu, or press Ctrl+C in the terminal that started it. Closing Settings alone keeps the app running. Open `Hanzi Lens 0.3.0-beta.3.exe` from `dist/`. It is portable and unsigned; no Node.js installation is needed to use the executable.
 
 The main window contains **settings only**. Close it when you are done; Hanzi Lens keeps running in the system tray. Reopen Settings from the tray icon, or use its **Quit Hanzi Lens** menu item to stop the app and release its shortcuts.
 
