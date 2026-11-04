@@ -1,0 +1,54 @@
+{
+  "electron": "success",
+  "native-selection": "\r\n> hanzi-lens@0.3.0-beta.3 test:windows\r\n> node --test test/windows-selection.native.cjs\r\n\r\nTAP version 13\r\n# Subtest: Windows selection helper: automatic path with a real selected text control\r\nnot ok 1 - Windows selection helper: automatic path with a real selected text control\r\n  ---\r\n  duration_ms: 40452.4239\r\n  type: 'test'\r\n  location: 'D:\\\\a\\\\Translate\\\\Translate\\\\test\\\\windows-selection.native.cjs:9:3'\r\n  failureType: 'testCodeFailure'\r\n  error: |-\r\n    Windows selection fixture failed (automatic; killed=true, signal=SIGTERM). #< CLIXML\r\n    \r\n  code: 'ERR_TEST_FAILURE'\r\n  stack: |-\r\n    D:\\a\\Translate\\Translate\\test\\windows-selection.native.cjs:18:13\r\n    process.processTicksAndRejections (node:internal/process/task_queues:103:5)\r\n    async TestContext.<anonymous> (D:\\a\\Translate\\Translate\\test\\windows-selection.native.cjs:11:24)\r\n    async Test.run (node:internal/test_runner/test:1054:7)\r\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\r\n  ...\r\n# Subtest: Windows selection helper: clipboard path with a real selected text control\r\nok 2 - Windows selection helper: clipboard path with a real selected text control\r\n  ---\r\n  duration_ms: 6560.1448\r\n  type: 'test'\r\n  ...\r\n1..2\r\n# tests 2\r\n# suites 0\r\n# pass 1\r\n# fail 1\r\n# cancelled 0\r\n# skipped 0\r\n# todo 0\r\n# duration_ms 47137.9784\r\n",
+  "electron-translation": "\r\n> hanzi-lens@0.3.0-beta.3 test:electron\r\n> node --test test/electron.smoke.cjs\r\n\r\nTAP version 13\r\n# Subtest: shortcuts produce only a compact popup; settings, capture, errors and persistence work\r\nok 1 - shortcuts produce only a compact popup; settings, capture, errors and persistence work\r\n  ---\r\n  duration_ms: 11300.8368\r\n  type: 'test'\r\n  ...\r\n1..1\r\n# tests 1\r\n# suites 0\r\n# pass 1\r\n# fail 0\r\n# cancelled 0\r\n# skipped 0\r\n# todo 0\r\n# duration_ms 12009.7304\r\n",
+  "build": "success",
+  "commit": "c071f90bb27ffecf6de6ade55721c4256b0cf6d9",
+  "benchmark": {
+    "model": "Xenova/opus-mt-zh-en",
+    "modelRevision": "39d480d52a9ea3065a1f117adfe4dbc55de10e6f",
+    "modelLicense": "cc-by-4.0",
+    "licenseSource": {
+      "license": "cc-by-4.0",
+      "repository": "Helsinki-NLP/opus-mt-zh-en",
+      "revision": "cf109095479db38d6df799875e34039d4938aaa6"
+    },
+    "packBytes": 119499668,
+    "runtime": "v22.23.4",
+    "platform": "win32",
+    "arch": "x64",
+    "availableCpus": 2,
+    "cpuThreads": 2,
+    "modelLoadAndWarmMs": 1358,
+    "processRssMB": 521,
+    "results": [
+      {
+        "input": "你好，世界。",
+        "text": "Hello, world.",
+        "elapsedMs": 86
+      },
+      {
+        "input": "我喜欢学习中文。",
+        "text": "I like learning Chinese.",
+        "elapsedMs": 117
+      },
+      {
+        "input": "我喜歡學習中文。",
+        "text": "I like learning Chinese.",
+        "elapsedMs": 147
+      },
+      {
+        "input": "请问，最近的火车站在哪里？",
+        "text": "Excuse me, where's the nearest train station?",
+        "elapsedMs": 229
+      }
+    ]
+  },
+  "offline-translation": "\r\n> hanzi-lens@0.3.0-beta.3 test:translation\r\n> node scripts/translation-smoke.cjs --install\r\n\r\n\r\nLanguage pack: 0%\r\nLanguage pack: 0%\r\nLanguage pack: 5%\r\nLanguage pack: 5%\r\nLanguage pack: 9%\r\nLanguage pack: 17%\r\nLanguage pack: 25%\r\nLanguage pack: 31%\r\nLanguage pack: 38%\r\nLanguage pack: 45%\r\nLanguage pack: 50%\r\nLanguage pack: 100%\r\nLanguage pack: 100%\r\nLanguage pack: 100%\r\nLanguage pack: 100%\r\nLanguage pack: 100%\r\nLanguage pack license, revision, sizes, and checksums verified.\r\nWARNING: `MarianTokenizer` is not yet supported by Hugging Face's \"fast\" tokenizers library. Therefore, you may experience slightly inaccurate results.\r\n{\r\n  \"model\": \"Xenova/opus-mt-zh-en\",\r\n  \"modelRevision\": \"39d480d52a9ea3065a1f117adfe4dbc55de10e6f\",\r\n  \"modelLicense\": \"cc-by-4.0\",\r\n  \"licenseSource\": {\r\n    \"license\": \"cc-by-4.0\",\r\n    \"repository\": \"Helsinki-NLP/opus-mt-zh-en\",\r\n    \"revision\": \"cf109095479db38d6df799875e34039d4938aaa6\"\r\n  },\r\n  \"packBytes\": 119499668,\r\n  \"runtime\": \"v22.23.4\",\r\n  \"platform\": \"win32\",\r\n  \"arch\": \"x64\",\r\n  \"availableCpus\": 2,\r\n  \"cpuThreads\": 2,\r\n  \"modelLoadAndWarmMs\": 1358,\r\n  \"processRssMB\": 521,\r\n  \"results\": [\r\n    {\r\n      \"input\": \"你好，世界。\",\r\n      \"text\": \"Hello, world.\",\r\n      \"elapsedMs\": 86\r\n    },\r\n    {\r\n      \"input\": \"我喜欢学习中文。\",\r\n      \"text\": \"I like learning Chinese.\",\r\n      \"elapsedMs\": 117\r\n    },\r\n    {\r\n      \"input\": \"我喜歡學習中文。\",\r\n      \"text\": \"I like learning Chinese.\",\r\n      \"elapsedMs\": 147\r\n    },\r\n    {\r\n      \"input\": \"请问，最近的火车站在哪里？\",\r\n      \"text\": \"Excuse me, where's the nearest train station?\",\r\n      \"elapsedMs\": 229\r\n    }\r\n  ]\r\n}\r\n",
+  "native": "failure",
+  "translation": "success",
+  "upload": "skipped",
+  "packaged-translation": "\r\n> hanzi-lens@0.3.0-beta.3 test:electron\r\n> node --test test/electron.smoke.cjs\r\n\r\nTAP version 13\r\n# Subtest: shortcuts produce only a compact popup; settings, capture, errors and persistence work\r\nok 1 - shortcuts produce only a compact popup; settings, capture, errors and persistence work\r\n  ---\r\n  duration_ms: 10046.3907\r\n  type: 'test'\r\n  ...\r\n1..1\r\n# tests 1\r\n# suites 0\r\n# pass 1\r\n# fail 0\r\n# cancelled 0\r\n# skipped 0\r\n# todo 0\r\n# duration_ms 10756.6151\r\n",
+  "packaged": "success",
+  "run_url": "https://github.com/Web1000/Translate/actions/runs/41914532346"
+}
