@@ -1,63 +1,24 @@
-# Hanzi Lens for Windows — 0.3.0-beta.3
+# Hanzi Lens for Windows
 
-A background Chinese reading companion with compact lookup popups. Inspired by HanziKey; this is an independent project, not an official Windows port.
+Highlight Chinese text in a Windows app and press **Ctrl+Shift+D** to see pinyin and English definitions beside the selection. For text inside an image or video, press **Ctrl+Shift+S** and drag over the characters. An optional language pack translates whole sentences on your CPU.
 
-New to the project? Read [how the app works, from the beginning](docs/app-explained.md). To give Claude or another developer the project context, share [the standalone technical handoff](docs/claude-handoff.md).
+![Hanzi Lens dictionary popup showing 学习, its pronunciation xué xí, and the meanings “to learn” and “to study”](docs/lookup-preview.png)
 
-## Download from GitHub
+## Try it
 
-Source: open [Web1000/Translate](https://github.com/Web1000/Translate), then **Code → Download ZIP**. Source downloads need the setup commands below; they do not include the compiled app or downloaded OCR models.
+1. Open the [Windows desktop builds](https://github.com/Web1000/Translate/actions/workflows/windows.yml) and choose a successful run for `main`.
+2. Download **Hanzi-Lens-Windows-x64** from its artifacts, extract the ZIP, and launch the portable executable. GitHub may ask you to sign in.
+3. Highlight **学习** and press **Ctrl+Shift+D**. Dictionary lookup works offline. For sentence translation, open **Settings → Translation → Download language pack** once.
 
-Windows app: open [Actions → Windows desktop](https://github.com/Web1000/Translate/actions/workflows/windows.yml), choose the latest run for `main`, and download **Hanzi-Lens-Windows-x64** under **Artifacts**. Sign in to GitHub if prompted. Extract the artifact ZIP, quit any older copy, and launch the EXE. Use a run with a green **Success** result. The **Upload Windows download** step now runs only after every required check, including native Windows selection, passes.
+## How it works
 
-## Try the Windows app
+The Electron tray app reads selected text through Windows UI Automation, with a clipboard fallback. Screen-region lookup uses local Tesseract OCR. CC-CEDICT supplies word readings and definitions. Longer passages can use quantized OPUS-MT in a separate process, keeping translation work off the UI thread.
 
-Quit the previous version first using **Quit Hanzi Lens** in its tray menu, or press Ctrl+C in the terminal that started it. Closing Settings alone keeps the app running. Open `Hanzi Lens 0.3.0-beta.3.exe` from `dist/`. It is portable and unsigned; no Node.js installation is needed to use the executable.
+I compared three offline engines on 54 diagnostic cases, checking meaning, latency, and memory use. The larger alternatives still reversed negation or dropped clauses in some cases, so I kept OPUS-MT and routed recognized single words directly to the dictionary. [Model comparison and examples](docs/translation-quality.md)
 
-The main window contains **settings only**. Close it when you are done; Hanzi Lens keeps running in the system tray. Reopen Settings from the tray icon, or use its **Quit Hanzi Lens** menu item to stop the app and release its shortcuts.
+## Run from source
 
-- **Ctrl+Shift+D**: highlight Chinese text in another app and release the shortcut keys after pressing them. A small popup near the cursor shows tone-colored characters, pinyin, and English definitions. Settings is not opened or focused.
-- **Ctrl+Shift+S**: drag a rectangle around Chinese text in an image, video, or app. Local OCR recognizes the text and sends the result to the same small popup. **Esc** cancels without reopening Settings.
-- Close the popup with its × button. Drag the top bar to move it; resize it from a corner. Additional definitions expand through the small `+n` buttons.
-- The speaker button uses an installed Chinese speech voice. It is disabled if Windows has no Chinese voice installed.
-
-In Settings you can enable or disable each feature, change its shortcut, toggle tone colors and pinyin, choose text size, and prefer original, Simplified, or Traditional characters. Changes persist between launches. In **Shortcuts**, click the shortcut field, press the new combination, then **Save shortcuts**. Conflicts are reported and the previous settings remain active.
-
-## Clipboard fix from 0.2.1
-
-Selected-text lookup now uses Electron 44's asynchronous `clipboard.read()`, `readText()`, `write()` and `ClipboardItem` APIs. This fixes the `clipboard.readHTML is not a function` error. A regression test now exercises selection reading and text/HTML restoration with the real Electron clipboard, substituting only the Windows helper process.
-
-## What changed from 0.1
-
-The large translation dashboard is gone. Selection and capture now share a separate compact dark popup. Settings uses plain dark panels and controls, with no translation text box. The app stays in the tray when Settings closes.
-
-The Windows selection helper first reads the selected range through UI Automation. If that is unavailable, it uses native `SendInput` for Ctrl+C, waits for a clipboard change, and returns text over UTF-8 JSON. The app waits until selection reading completes before showing any popup. The old SendKeys/sentinel-clipboard flow has been removed. An empty selection or failure is explained in the popup rather than bringing up an empty main window.
-
-The helper is launched with PowerShell `-EncodedCommand` to preserve command quoting. No PowerShell execution-policy change or administrator launch is required. Elevated apps and apps that block copying may still require screen capture.
-
-## Offline sentence translation
-
-New in 0.3.0-beta.3: free, CPU-based sentence translation with a separately downloaded language pack (about 120 MB). Real translations passed in both source and packaged Windows Electron. Short test sentences took 115–315 ms after warm-up on the Windows CI machine; see [VALIDATION.md](VALIDATION.md) for measurements and validation history.
-
-Open **Settings → Translation → Download language pack**. The one-time download comes from Hugging Face, with an immutable model revision, model license, file sizes, and checksums verified before installation. Download progress and cancellation are available. The pack is stored in the app's user-data folder and survives app updates; it is not bundled in every executable download.
-
-After installation, automatic offline translation is enabled. A recognized single word (in either script, including surrounding punctuation) uses CC-CEDICT only; it never calls sentence generation and does not need a language pack. Longer selections and OCR passages show dictionary definitions first, then the generated English sentence. Both Simplified and Traditional input are supported by normalizing Traditional text with OpenCC before model inference; the original text stays in the lookup.
-
-The default candidate is Xenova's int8 ONNX conversion of OPUS-MT Chinese → English. It runs through Transformers.js / ONNX Runtime's CPU provider with at most two inference threads. No GPU, account, API key, or per-translation fee is needed. The converted pack explicitly names Helsinki-NLP as its base model. The installer verifies the declared model license, or that named base model’s license if the conversion has no separate declaration; Apache 2.0 and CC BY 4.0 are supported. Attribution and the applicable upstream model card are retained in the pack. The validated OPUS-MT source uses CC BY 4.0.
-
-The model stays loaded while enabled, including a warm-up generation at startup. Turn the feature off to release its process and memory; remove the pack to reclaim disk space. Translation runs in a separate Electron utility process, with remote-model loading disabled during inference. A failed engine does not need to close Settings or dictionary lookup. New lookups cancel outdated translations instead of building an unlimited queue.
-
-Inputs over 2,000 characters are rejected with a clear popup message rather than silently shortened. Longer sentences are split into bounded chunks, with paragraph breaks retained. This small model is intended as a reading aid. It can make serious meaning errors, including negation, omitted clauses, currency, and context. A 30-case comparison reproduced the reported 交际 → “No, no, no” error with both the fast and reference Marian tokenizers. Argos zh-en 1.9 fixed that isolated word but introduced other serious errors, so it was not selected as a replacement. See [the comparison and raw results](docs/translation-evaluation.md). Single-word dictionary routing prevents that particular generated-word failure; sentence translation quality remains limited. Decimal points are kept inside numbers rather than split into separate model inputs.
-
-Performance depends on CPU and RAM. There is no near-instant guarantee for all PCs, no established minimum RAM yet, and no claim that older hardware has been benchmarked. The included real-model smoke test measures loading, generation latency, and benchmark-process memory. Check `translation-benchmark.json` in a validated Windows artifact for measured results on the CI machine, not your own PC.
-
-All translation is free and local. The paid online translation option, API-key controls, and network request handler have been removed. Any encrypted key file left by an older version is removed at startup.
-
-Hover lookup and automatic subtitle rescanning are not implemented.
-
-## Run from source on Windows
-
-Install Node.js 22 LTS (22.12+) or Node 24. The dictionary's package declares Node 22, so Node 24 prints an engine warning; its data has also been tested with Node 24. Open PowerShell in the extracted folder containing `package.json` and run:
+On Windows with Node.js 22.12+ installed, run these commands in PowerShell from the repository root:
 
 ```powershell
 npm.cmd ci
@@ -66,61 +27,6 @@ npm.cmd run assets
 npm.cmd start
 ```
 
-Use `npm.cmd` to avoid PowerShell's `npm.ps1` execution-policy restriction. The first install needs internet access. Subsequent dictionary lookup and OCR work offline. `setup:electron` verifies the pinned runtime against official SHA-256 checksums; `assets` verifies the bundled Chinese model checksums. Both commands are repeatable.
+Run `npm.cmd test` for the unit suite. The Windows build workflow also exercises OCR, UI behavior, real offline translation, the packaged app, and native text selection before uploading the executable.
 
-For an upgrade from an older source ZIP, extract this version into a new folder, quit the old process, and use the commands above in the new folder.
-
-## Run the checks
-
-```powershell
-npm.cmd test
-npx.cmd playwright install chromium
-npm.cmd run test:ui
-npm.cmd run test:ocr
-npm.cmd run test:electron
-npm.cmd run test:windows
-npm.cmd run test:translation -- --install
-```
-
-`test:windows` briefly opens a native test window, selects known Chinese text, and exercises the actual Windows selection helper in automatic and clipboard modes. Let that window keep focus until the test finishes. It runs only on Windows; Linux reports these checks as skipped. It does not use your own documents. The standard Electron test uses a separate temporary settings directory and does not change your saved settings.
-
-Validation coverage:
-
-- Unit tests: real dictionary entries in both scripts, segmentation, Unicode, pinyin, translation responses, shortcut validation, clipboard restoration and failure handling.
-- Browser tests: settings-only UI, shortcut recording, feature toggles, popup contents, tone colors, and crop coordinates with DPI scaling.
-- Electron integration: the actual shortcut handlers, popup-only success and failure paths, settings persistence and conflicts, cancellation, and screenshot → OCR → popup. Native selection, key registration, and screenshot sources are substituted in this test; these are not evidence of live Windows behavior.
-- Real OCR smoke: a rendered Chinese image is read by the actual models and passed through the dictionary.
-
-In Linux cloud tasks, use `CHROMIUM_PATH=/usr/bin/chromium` for the browser/OCR tests. The Electron integration test can use `ELECTRON_TEST_HEADLESS=1 ELECTRON_TEST_NO_SANDBOX=1` and writable `XDG_CONFIG_HOME` / `XDG_CACHE_HOME`. Those overrides apply only to the restricted test container; the shipped app keeps its sandbox. `ELECTRON_APP_PATH` can point the integration test at an unpacked build.
-
-The Windows CI workflow includes the native checks, real-model checks, and a portable build. See VALIDATION.md for observed outcomes. Live Windows selection, tray behavior, global shortcuts, and monitor capture still need confirmation on a Windows desktop.
-
-### Testing while away from Windows
-
-The Windows workflow runs on code pushes, pull requests, or manual dispatch. It exercises the real model, OCR, native selection helper, source Electron app, and packaged Windows app. Results and successful executable artifacts appear under [Actions → Windows desktop](https://github.com/Web1000/Translate/actions/workflows/windows.yml). There is no weekly test schedule. Recurring development requires a separately configured coding-agent task; this workflow does not develop new features or improve translations automatically.
-
-Older desktop runs on the same branch are canceled when a newer one starts. Research-only model scripts and reports do not rebuild the app by themselves. Translation-quality experiments have a separate Windows workflow, keeping successful model execution distinct from correct English meaning.
-
-The [54-case Windows accuracy comparison](docs/translation-quality.md) includes OPUS, M2M100, and MADLAD with raw outputs and CPU/memory measurements. Neither tested replacement met the quality bar, so the shipped engine remains unchanged.
-
-## Model validation
-
-`npm run test:translation -- --install` downloads a real pack, checks it, runs Simplified/Traditional translation cases, and writes `.cache/translation-benchmark.json`. Subsequent runs need no network while that pack remains installed. The Windows workflow requires this check and a packaged-app test with the real pack before uploading a candidate executable. It includes the measured report with the executable.
-
-The cloud machine may need the Hugging Face network allowlist enabled before this command can run. A missing pack or blocked host is an unrun real-model test, not a passing translation check. For the feature branch, CI also records outcomes in the generated `codex-validation-offline-translation` branch so the cloud session can inspect results through its available Git access.
-
-## Build
-
-```powershell
-npm.cmd run dist:win
-```
-
-Build the Windows release on Windows or through the included Windows GitHub Actions workflow. The translation runtime has platform-specific native dependencies; a Linux cross-build is no longer the supported release path. The executable includes the CPU runtime, dictionary, OCR models, and selection helper. The translation language pack is downloaded separately. Signing remains a separate release task.
-
-## Privacy and limitations
-
-Dictionary, OCR, and offline sentence translation are local; no accounts or analytics. Screenshots are held in memory, not saved by the app. Selected-text lookup uses accessibility first; the copy fallback attempts to restore standard text/HTML/RTF/image clipboard formats when the clipboard has not changed again. Application-specific clipboard formats may not survive. Prefer capture if you need to keep such formats intact.
-
-Dictionary segmentation uses longest matching Chinese words, not contextual language parsing. Standalone Latin text such as APP is excluded from the word breakdown, while the original text remains available to sentence translation. Each Chinese token has one visible row. Exact duplicate entries are merged; ordinary entries are preferred over surname/variant references, with broader unmarked entries first when several readings remain. Other readings are expandable. This default ordering is a heuristic, not contextual sense selection: it can still choose the wrong reading or meaning. Tone colors reflect the displayed reading. OCR quality depends on size, contrast, and layout. Protected video may capture as black.
-
-Settings and the downloaded language pack live in Electron's user-data folder, outside the source folder. No API key is needed. Data attribution and licenses: [resources/NOTICE.md](resources/NOTICE.md).
+[Windows setup, privacy, and troubleshooting](docs/windows-guide.md) · [Architecture](docs/app-explained.md) · [Validation results](VALIDATION.md) · [Data and model credits](resources/NOTICE.md)
